@@ -1,10 +1,6 @@
 # clj_components
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
+Component lifecycle management lib based of Avout, with some regulary used static components
 
 ## License
 
