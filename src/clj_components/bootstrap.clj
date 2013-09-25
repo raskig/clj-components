@@ -25,7 +25,7 @@
 
 (defn- zk-connection-watcher [e]
   (when (= :Expired (:keeper-state e))
-    (println "Zookeeper expired, restarting.")
+    (log/warn "Zookeeper expired, restarting.")
     (init-config!)
     (bounce-on-config!)))
 
@@ -50,7 +50,7 @@
   (log/info "Components loaded."))
 
 (defn shutdown! []
-  (println "Shutting down.")
+  (log/info "Shutting down.")
   (when (bound? #'clj-components.system/components)
     (doseq [c (vals clj-components.system/components)
             :when (satisfies? component/ShutdownComponent c)]
@@ -59,4 +59,4 @@
     (clj-components.system/configure! nil))
   (when (bound? #'clj-components.settings/config)
     (clj-components.config/disconnect! clj-components.settings/config))
-  (println "Shut down complete."))
+  (log/info "Shut down complete."))
