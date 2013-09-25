@@ -20,12 +20,15 @@
                :when (satisfies? component/BounceOnConfigChange c)]
            [(component/registry-key c) (init-component! @settings c)]))))
 
+(defn- zk-connection-watcher [e]
+  (println "TODO - Bounce Components" e))
+
 (defn init!
   "Load and instantiate system components."
   [bootstrap-args component-constructors]
   (log/info "Manifest:" (clj-components.manifest/fetch))
 
-  (let [settings (clj-components.config/fetch-settings #'bounce-on-config!)
+  (let [settings (clj-components.config/fetch-settings #'bounce-on-config! #'zk-connection-watcher)
         init-settings (merge @settings bootstrap-args)]
     (clj-components.settings/configure! settings)
     (clj-components.system/configure!
