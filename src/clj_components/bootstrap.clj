@@ -6,27 +6,33 @@
             [clj-components.settings]
             [clj-components.config]))
 
+(declare init!)
+(declare shutdown!)
+
 (defn- init-component! [settings c]
   (log/info (format "Loading %s" (component/registry-key c)))
   (component/init c settings))
 
 (defn- bounce-on-config!
   "When some config changes, this is the function to run."
-  [settings]
+  []
   (log/info "Configuration change detected, bouncing relevant components.")
-  (clj-components.settings/configure! settings)
   (clj-components.system/configure!
    (into clj-components.system/components
          (for [c (vals clj-components.system/components)
                :when (satisfies? component/BounceOnConfigChange c)]
-           [(component/registry-key c) (init-component! @settings c)]))))
+           [(component/registry-key c) (init-component! @clj-components.settings/settings c)]))))
 
 (defn- zk-connection-watcher [e]
-  (println "TODO - Bounce Components" e))
+  (when (= :Expired (:keeper-state e))
+    (println "Zookeeper expired, restarting.")
+    (shutdown!)
+    (init!)))
 
 (defn init!
   "Load and instantiate system components."
   [bootstrap-args component-constructors]
+  (println "Intialising.")
   (log/info "Manifest:" (clj-components.manifest/fetch))
 
   (let [config (clj-components.config/fetch! zk-connection-watcher bounce-on-config!)
@@ -40,10 +46,12 @@
   (log/info "Components loaded."))
 
 (defn shutdown! []
+  (println "Shutting down.")
   (when (bound? #'clj-components.system/components)
     (doseq [c (vals clj-components.system/components)
             :when (satisfies? component/ShutdownComponent c)]
       (log/info (format "Shutting down %s" (component/registry-key c)))
       (component/shutdown c)))
   (when (bound? #'clj-components.settings/config)
-    (clj-components.config/disconnect! clj-components.settings/config)))
+    (clj-components.config/disconnect! clj-components.settings/config))
+  (println "Shut down complete."))
