@@ -29,7 +29,10 @@
                  [com.taoensso/carmine "1.7.0"]
 
                  ;; WebServer Component
-                 [ring "1.2.0"]]
+                 [ring "1.2.0"]
+
+                 ;; NRepl Component
+                 [org.clojure/tools.nrepl "0.2.2"]]
   :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
                  "releases" {:url "http://10.251.76.32:8081/nexus/content/repositories/releases"
