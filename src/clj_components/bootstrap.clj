@@ -6,7 +6,7 @@
             [clj-components.settings]
             [clj-components.config]))
 
-(declare init!)
+(declare init-config!)
 (declare shutdown!)
 
 (defn- init-component! [settings c]
@@ -26,19 +26,22 @@
 (defn- zk-connection-watcher [e]
   (when (= :Expired (:keeper-state e))
     (println "Zookeeper expired, restarting.")
-    (shutdown!)
-    (init!)))
+    (init-config!)
+    (bounce-on-config!)))
+
+(defn- init-config! []
+  (clj-components.settings/configure!
+   (clj-components.config/fetch! zk-connection-watcher bounce-on-config!)))
 
 (defn init!
   "Load and instantiate system components."
   [bootstrap-args component-constructors]
   (assert (not (and (bound? #'clj-components.system/components) clj-components.system/components)))
-  (println "Intialising.")
   (log/info "Manifest:" (clj-components.manifest/fetch))
 
-  (let [config (clj-components.config/fetch! zk-connection-watcher bounce-on-config!)
-        init-settings (merge @(:settings config) bootstrap-args)]
-    (clj-components.settings/configure! config)
+  (init-config!)
+
+  (let [init-settings (merge @(:settings clj-components.settings/config) bootstrap-args)]
     (clj-components.system/configure!
      (into {}
            (for [c-c component-constructors :let [c (c-c)]]
