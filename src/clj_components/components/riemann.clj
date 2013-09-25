@@ -1,4 +1,4 @@
-(ns clj-components.riemann
+(ns clj-components.components.riemann
   (:use [clj-components.component])
   (:require [riemann.client :as r]
             [clojure.tools.logging :as log]

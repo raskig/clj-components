@@ -1,4 +1,4 @@
-(ns clj-components.redis
+(ns clj-components.components.redis
   (:use [clj-components.component])
   (:require [taoensso.carmine :as car]
             [clojure.tools.logging :as log]

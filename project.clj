@@ -19,10 +19,17 @@
                                                     com.sun.jdmk/jmxtools
                                                     com.sun.jmx/jmxri]]
 
-                 ;; Component libs
+                 ;; ElasticSearch Component
                  [clojurewerkz/elastisch "1.3.0-beta1"]
+
+                 ;; Riemann Component
                  [riemann-clojure-client "0.2.6"]
-                 [com.taoensso/carmine "1.7.0"]]
+
+                 ;; Redis Component
+                 [com.taoensso/carmine "1.7.0"]
+
+                 ;; WebServer Component
+                 [ring "1.2.0"]]
   :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
                  "releases" {:url "http://10.251.76.32:8081/nexus/content/repositories/releases"
