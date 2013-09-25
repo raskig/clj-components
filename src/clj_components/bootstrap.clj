@@ -32,6 +32,7 @@
 (defn init!
   "Load and instantiate system components."
   [bootstrap-args component-constructors]
+  (assert (not (and (bound? #'clj-components.system/components) clj-components.system/components)))
   (println "Intialising.")
   (log/info "Manifest:" (clj-components.manifest/fetch))
 
@@ -51,7 +52,8 @@
     (doseq [c (vals clj-components.system/components)
             :when (satisfies? component/ShutdownComponent c)]
       (log/info (format "Shutting down %s" (component/registry-key c)))
-      (component/shutdown c)))
+      (component/shutdown c))
+    (clj-components.system/configure! nil))
   (when (bound? #'clj-components.settings/config)
     (clj-components.config/disconnect! clj-components.settings/config))
   (println "Shut down complete."))
