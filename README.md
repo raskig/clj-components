@@ -4,6 +4,4 @@ Component lifecycle management lib based of Avout, with some regulary used stati
 
 ## License
 
-Copyright © 2013 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+Copyright © 2013 DMGT
