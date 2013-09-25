@@ -1,4 +1,4 @@
-(defproject clj_components "0.1.0-SNAPSHOT"
+(defproject clj-components "0.1.0-SNAPSHOT"
   :description "Clj Components"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"

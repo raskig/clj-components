@@ -20,10 +20,10 @@
                :when (satisfies? component/BounceOnConfigChange c)]
            [(component/registry-key c) (init-component! @settings c)]))))
 
-(defn init
+(defn init!
   "Load and instantiate system components."
   [bootstrap-args component-constructors]
-  (log/info "clj-fe Manifest:" (clj-components.manifest/fetch))
+  (log/info "Manifest:" (clj-components.manifest/fetch))
 
   (let [settings (clj-components.config/fetch-settings #'bounce-on-config!)
         init-settings (merge @settings bootstrap-args)]
@@ -34,3 +34,10 @@
              [(component/registry-key c) (init-component! init-settings c)]))))
 
   (log/info "Components loaded."))
+
+(defn shutdown! []
+  (when (bound? #'clj-components.system/components)
+    (doseq [c (vals clj-components.system/components)
+            :when (satisfies? component/ShutdownComponent c)]
+      (log/info (format "Shutting down %s" (component/registry-key c)))
+      (component/shutdown c))))
