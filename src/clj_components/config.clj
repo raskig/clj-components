@@ -1,6 +1,8 @@
 (ns clj-components.config
-  (:use [avout.core])
-  (:require [environ.core :as environ]))
+  (:use [avout.core]
+        [clj-components.component])
+  (:require [environ.core :as environ]
+            [zookeeper :as zk]))
 
 (defn zk-ips
   "Zookeeper IPs."
@@ -10,19 +12,24 @@
   "Zookeeper Root."
   [] (keyword (or (environ/env :clj-fe-zk-root) :clj-fe)))
 
-(defn fetch-settings
-  "Retrieve settings from Zookeeper."
-  [prop-watcher conn-watcher]
-  (let [client (connect (zk-ips) :watcher conn-watcher)
-        _ (def client client)
+(defrecord ConfigComponent [client settings])
+
+(defn fetch! [zk-connection-watcher ref-watcher]
+  (let [client (connect (zk-ips) :watcher zk-connection-watcher)
         settings (zk-ref client (str "/" (name (zk-root))))]
-    (add-watch settings nil (fn [& args] (prop-watcher settings)))
-    (def settings settings)
-    settings))
+    (add-watch settings nil (fn [& args] (ref-watcher settings)))
+    (ConfigComponent. client settings)))
+
+(defn disconnect! [config]
+  (zk/close (:client config)))
+
+;; ZK Notes -------------------------------------------------------------
+
+;; ZK Connection Watcher Events:
 
 ;; Connect:
 ;; the connection watcher is called with {:event-type :None, :keeper-state :SyncConnected, :path nil}
 
 ;; Disconnect:
-;; {:event-type :None, :keeper-state :Disconnected, :path nil}
-;; {:event-type :None, :keeper-state :Expired, :path nil}
+;; the connection watcher is called with {:event-type :None, :keeper-state :Disconnected, :path nil}
+;; the connection watcher is called with {:event-type :None, :keeper-state :Expired, :path nil}

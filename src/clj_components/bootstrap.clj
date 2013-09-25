@@ -3,7 +3,8 @@
             [clj-components.component :as component]
             [clj-components.manifest]
             [clj-components.system]
-            [clj-components.settings]))
+            [clj-components.settings]
+            [clj-components.config]))
 
 (defn- init-component! [settings c]
   (log/info (format "Loading %s" (component/registry-key c)))
@@ -28,9 +29,9 @@
   [bootstrap-args component-constructors]
   (log/info "Manifest:" (clj-components.manifest/fetch))
 
-  (let [settings (clj-components.config/fetch-settings #'bounce-on-config! #'zk-connection-watcher)
-        init-settings (merge @settings bootstrap-args)]
-    (clj-components.settings/configure! settings)
+  (let [config (clj-components.config/fetch! zk-connection-watcher bounce-on-config!)
+        init-settings (merge @(:settings config) bootstrap-args)]
+    (clj-components.settings/configure! config)
     (clj-components.system/configure!
      (into {}
            (for [c-c component-constructors :let [c (c-c)]]
@@ -43,4 +44,6 @@
     (doseq [c (vals clj-components.system/components)
             :when (satisfies? component/ShutdownComponent c)]
       (log/info (format "Shutting down %s" (component/registry-key c)))
-      (component/shutdown c))))
+      (component/shutdown c)))
+  (when (bound? #'clj-components.settings/config)
+    (clj-components.config/disconnect! clj-components.settings/config)))
