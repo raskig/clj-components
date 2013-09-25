@@ -12,11 +12,14 @@
   (registry-key [this] :web-server)
 
   (init [this {:keys [http-port http-handler]}]
-  (let [server (jetty/run-jetty http-handler
-                                {:port http-port :configurator graceful-restart :join? false})
-        hostname (.getHostName (java.net.InetAddress/getLocalHost))]
-    (log/info (format "Ring started on %s:%s. Watch out for stones." hostname http-port))
-    (assoc this :server server)))
+    (assert http-port)
+    (assert http-handler)
+
+    (let [server (jetty/run-jetty http-handler
+                                  {:port http-port :configurator graceful-restart :join? false})
+          hostname (.getHostName (java.net.InetAddress/getLocalHost))]
+      (log/info (format "Ring started on %s:%s. Watch out for stones." hostname http-port))
+      (assoc this :server server)))
 
   ShutdownComponent
   (shutdown [{:keys [server]}]
