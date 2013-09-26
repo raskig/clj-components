@@ -7,11 +7,12 @@
 
                  ;; Config
                  [clj_manifest "0.1.0"]
-                 [zookeeper-clj "0.9.5"]
+                 [zookeeper-clj "0.9.5" :exclusions [org.slf4j/slf4j-log4j12]]
                  [avout "0.5.3"]
                  [environ "0.4.0"]
 
                  ;; Logging
+                 ;; Logging should be managed by host application no?
                  [org.clojure/tools.logging "0.2.6"]
                  [org.slf4j/slf4j-log4j12 "1.6.6"]
                  [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
