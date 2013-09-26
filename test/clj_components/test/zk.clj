@@ -75,3 +75,14 @@
 
   (is var-to-prove-shutdown)
   (is (nil? clj-components.system/components)))
+
+(deftest can-shutdown-and-re-init
+  (bootstrap/init! {} [clj-components.test.zk/->TestComponent])
+
+  (bootstrap/shutdown!)
+
+  (bootstrap/init! {:bootstrap-foo :bootstrap-bar} [clj-components.test.zk/->TestComponent])
+
+  (Thread/sleep 1000)
+
+  (is (= :bootstrap-bar (-> system/components :test :booted-with-settings :bootstrap-foo))))
