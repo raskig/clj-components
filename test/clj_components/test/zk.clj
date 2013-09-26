@@ -8,9 +8,13 @@
 
 ;; test the bootstrapping
 
-(def ^:dynamic some-val :a-val)
+(declare ^:dynamic some-val)
+(declare ^:dynamic var-to-prove-shutdown)
 
 (defn fixture [f]
+  (alter-var-root #'var-to-prove-shutdown (constantly false))
+  (alter-var-root #'some-val (constantly :first-pass))
+
   (binding [clj-components.config/zk-root (constantly :clj-components-test)]
     (f)
     (bootstrap/shutdown!)))
@@ -26,11 +30,15 @@
       :some-val some-val)))
 
 (defrecord TestBounceableComponent []
-  SystemComponent
   BounceOnConfigChange
+  SystemComponent
   (registry-key [this] :test-bouncy)
   (init [this settings]
-    (assoc this :some-val some-val)))
+    (assoc this :some-val some-val))
+
+  ShutdownComponent
+  (shutdown [this]
+    (alter-var-root #'var-to-prove-shutdown (constantly true))))
 
 (deftest can-boot-up-with-bootstrap-args
   (bootstrap/init! {:bootstrap-foo :bootstrap-bar} [clj-components.test.zk/->TestComponent])
@@ -55,3 +63,15 @@
 
   (is (= :first-pass (-> system/components :test :some-val)))
   (is (= :second-pass (-> system/components :test-bouncy :some-val))))
+
+(deftest can-shutdown
+  (bootstrap/init! {} [clj-components.test.zk/->TestBounceableComponent])
+
+  (is (= false var-to-prove-shutdown))
+
+  (bootstrap/shutdown!)
+
+  (Thread/sleep 1000)
+
+  (is var-to-prove-shutdown)
+  (is (nil? clj-components.system/components)))
