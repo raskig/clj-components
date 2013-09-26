@@ -21,11 +21,12 @@
    (into clj-components.system/components
          (for [c (vals clj-components.system/components)
                :when (satisfies? component/BounceOnConfigChange c)]
-           [(component/registry-key c) (init-component! @clj-components.settings/settings c)]))))
+           [(component/registry-key c) (init-component! @clj-components.settings/settings c)])))
+  (log/info "Finished bouncing relevant components."))
 
 (defn- zk-connection-watcher [e]
   (when (= :Expired (:keeper-state e))
-    (log/warn "Zookeeper expired, restarting.")
+    (log/warn "Zookeeper session expired, reconnecting and bouncing relevant components.")
     (init-config!)
     (bounce-on-config!)))
 
