@@ -4,7 +4,9 @@
         [avout.core])
   (:require [clj-components.bootstrap :as bootstrap]
             [clj-components.system :as system]
-            [clj-components.settings :as settings]))
+            [clj-components.settings :as settings]
+            [zookeeper :as zk])
+  (:import [org.apache.zookeeper ZooKeeper]))
 
 ;; test the bootstrapping
 
@@ -45,8 +47,6 @@
   (is (= :bootstrap-bar (-> system/components :test :booted-with-settings :bootstrap-foo))))
 
 (deftest can-bounce-components-based-off-zk-config-change
-  (alter-var-root #'some-val (constantly :first-pass))
-
   (bootstrap/init! {} [clj-components.test.zk/->TestComponent
                        clj-components.test.zk/->TestBounceableComponent])
 
@@ -86,3 +86,33 @@
   (Thread/sleep 1000)
 
   (is (= :bootstrap-bar (-> system/components :test :booted-with-settings :bootstrap-foo))))
+
+(defn- expire-zk-conn [conn]
+  (let [clone (ZooKeeper. (clj-components.config/zk-ips) 60000, nil, (zk/session-id conn), (zk/session-password conn))]
+    (println  "Closing" (zk/session-id conn), (zk/session-password conn))
+    (zk/close clone)
+    (println "Connection state of original connection is now:" (zk/state conn))))
+
+(deftest can-recover-from-severed-zk-connection
+  (bootstrap/init! {} [clj-components.test.zk/->TestComponent
+                       clj-components.test.zk/->TestBounceableComponent])
+
+  (alter-var-root #'some-val (constantly :second-pass))
+
+  (expire-zk-conn (:client settings/config))
+
+  (Thread/sleep 2000)
+
+  (is (= :first-pass (-> system/components :test :some-val)))
+  (is (= :second-pass (-> system/components :test-bouncy :some-val)))
+
+  (alter-var-root #'some-val (constantly :third-pass))
+
+  (let [client (:client settings/config)]
+    (dosync!! client
+              (alter!! settings/settings assoc :poke-settings :poked)))
+
+  (Thread/sleep 1000)
+
+  (is (= :first-pass (-> system/components :test :some-val)))
+  (is (= :third-pass (-> system/components :test-bouncy :some-val))))
