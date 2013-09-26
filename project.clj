@@ -1,6 +1,6 @@
-(defproject clj-components "0.1.1-SNAPSHOT"
+(defproject clj-components "0.1.1"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
-  :url "https://github.com/jonpither/clj-components"
+  :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
