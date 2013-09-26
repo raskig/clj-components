@@ -8,7 +8,7 @@
   "Zookeeper IPs."
   [] (or (environ/env :clj-fe-zk-conn-str) "10.251.76.40:2181,10.251.76.52:2181"))
 
-(defn zk-root
+(defn ^:dynamic zk-root
   "Zookeeper Root."
   [] (keyword (or (environ/env :clj-fe-zk-root) :clj-fe)))
 
