@@ -13,4 +13,5 @@
         (assoc @clj-components.settings/settings
           :zk_cluster (clj-components.config/zk-ips)
           :zk_root (clj-components.config/zk-root)
-          :manifest (clj-components.manifest/fetch))))
+          :manifest (clj-components.manifest/fetch)
+          :status "OK")))
