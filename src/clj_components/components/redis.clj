@@ -10,8 +10,8 @@
   (registry-key [this] :redis)
 
   (init [this settings]
-    (log/info (format "Connecting to %s" (:comments-redis settings)))
-    (let [spec-server (car/make-conn-spec :uri (:comments-redis settings))]
+    (log/info (format "Connecting to %s" (-> settings :components :redis :url)))
+    (let [spec-server (car/make-conn-spec :uri (-> settings :components :redis :url))]
       (assoc this
         :spec-server spec-server
         :pool (car/make-conn-pool)))))
