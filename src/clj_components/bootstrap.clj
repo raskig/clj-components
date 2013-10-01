@@ -2,7 +2,6 @@
   (:require [clojure.tools.logging :as log]
             [clj-components.component :as component]
             [clj-components.manifest]
-            [clj-components.system]
             [clj-components.settings]
             [clj-components.config]))
 
@@ -15,49 +14,45 @@
 
 (defn- bounce-on-config!
   "When some config changes, this is the function to run."
-  []
+  [components]
   (log/info "Configuration change detected, bouncing relevant components.")
-  (clj-components.system/configure!
-   (into clj-components.system/components
-         (for [c (vals clj-components.system/components)
-               :when (satisfies? component/BounceOnConfigChange c)]
-           [(component/registry-key c) (init-component! @clj-components.settings/settings c)])))
+  (into components
+        (for [c (vals components)
+              :when (satisfies? component/BounceOnConfigChange c)]
+          [(component/registry-key c) (init-component! @clj-components.settings/settings c)]))
   (log/info "Finished bouncing relevant components."))
 
 (defn- zk-connection-watcher [e]
   (when (= :Expired (:keeper-state e))
     (log/warn "Zookeeper session expired, reconnecting and bouncing relevant components.")
-    (init-config!)
     (bounce-on-config!)))
 
 (defn- init-config! []
   (clj-components.settings/configure!
-   (clj-components.config/fetch! zk-connection-watcher bounce-on-config!)))
+   (clj-components.config/fetch! zk-connection-watcher)))
 
 (defn init!
   "Load and instantiate system components."
-  [bootstrap-args component-constructors]
-  (assert (not (and (bound? #'clj-components.system/components) clj-components.system/components)))
+  [old-system bootstrap-args component-constructors]
+  (assert (not old-system))
   (log/info "Manifest:" (clj-components.manifest/fetch))
 
-  (init-config!)
+  (let [settings (:settings (init-config!))
+        init-settings (merge @settings bootstrap-args)
+        components (into {}
+                         (for [c-c component-constructors :let [c (c-c)]]
+                           [(component/registry-key c) (init-component! init-settings c)]))]
+    (clj-components.config/add-watcher settings bounce-on-config! components)
+    (log/info "Components loaded.")
+    (assoc components :settings settings)))
 
-  (let [init-settings (merge @(:settings clj-components.settings/config) bootstrap-args)]
-    (clj-components.system/configure!
-     (into {}
-           (for [c-c component-constructors :let [c (c-c)]]
-             [(component/registry-key c) (init-component! init-settings c)]))))
-
-  (log/info "Components loaded."))
-
-(defn shutdown! []
+(defn shutdown! [system]
   (log/info "Shutting down.")
-  (when (bound? #'clj-components.system/components)
-    (doseq [c (vals clj-components.system/components)
+  (when system
+    (doseq [c (vals system)
             :when (satisfies? component/ShutdownComponent c)]
       (log/info (format "Shutting down %s" (component/registry-key c)))
-      (component/shutdown c))
-    (clj-components.system/configure! nil))
+      (component/shutdown c)))
   (when (bound? #'clj-components.settings/config)
     (clj-components.config/disconnect! clj-components.settings/config))
   (log/info "Shut down complete."))

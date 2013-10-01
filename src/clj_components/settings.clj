@@ -5,4 +5,5 @@
 
 (defn configure! [config]
   (def config config)
-  (def settings (:settings config)))
+  (def settings (:settings config))
+  config)
