@@ -9,7 +9,8 @@
   (registry-key [this] :es)
 
   (init [this settings]
-    (let [es-url (:es-url settings)
+    (let [settings (-> settings :components :es)
+          es-url (:es-url settings)
           es-cluster (:es-cluster settings)]
       (if (and es-url es-cluster)
         (let [pairs (->> (clojure.string/split (:es-url settings) #",")
