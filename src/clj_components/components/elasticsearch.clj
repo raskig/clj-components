@@ -19,5 +19,6 @@
           (assoc this
             :url es-url
             :cluster es-cluster
-            :client (native/connect! pairs {"cluster.name" (:es-cluster settings)})))
+            :client (native/connect! pairs {"cluster.name" (:es-cluster settings)
+                                            "client.transport.ping_timeout" (:es-client-ping-timout settings "10s")})))
         this))))
