@@ -3,8 +3,6 @@
         [clj-components.component]
         [avout.core])
   (:require [clj-components.bootstrap :as bootstrap]
-            [clj-components.system :as system]
-            [clj-components.settings :as settings]
             [zookeeper :as zk])
   (:import [org.apache.zookeeper ZooKeeper]))
 
@@ -18,8 +16,7 @@
   (alter-var-root #'some-val (constantly :first-pass))
 
   (binding [clj-components.config/zk-root (constantly :clj-components-test)]
-    (f)
-    (bootstrap/shutdown!)))
+    (f)))
 
 (use-fixtures :each fixture)
 
@@ -43,49 +40,49 @@
     (alter-var-root #'var-to-prove-shutdown (constantly true))))
 
 (deftest can-boot-up-with-bootstrap-args
-  (bootstrap/init! {:bootstrap-foo :bootstrap-bar} [clj-components.test.zk/->TestComponent])
-  (is (= :bootstrap-bar (-> system/components :test :booted-with-settings :bootstrap-foo))))
+  (let [system (bootstrap/init! nil {:bootstrap-foo :bootstrap-bar} [clj-components.test.zk/->TestComponent])]
+    (is (= :bootstrap-bar (-> @(:components system) :test :booted-with-settings :bootstrap-foo)))))
 
 (deftest can-bounce-components-based-off-zk-config-change
-  (bootstrap/init! {} [clj-components.test.zk/->TestComponent
-                       clj-components.test.zk/->TestBounceableComponent])
+  (let [system (bootstrap/init! nil {} [clj-components.test.zk/->TestComponent
+                                        clj-components.test.zk/->TestBounceableComponent])
+        config @(:config system)]
 
-  (is (= :first-pass (-> system/components :test :some-val)))
-  (is (= :first-pass (-> system/components :test-bouncy :some-val)))
+    (is (= :first-pass (-> system :components deref :test :some-val)))
+    (is (= :first-pass (-> system :components deref :test-bouncy :some-val)))
 
-  (alter-var-root #'some-val (constantly :second-pass))
+    (alter-var-root #'some-val (constantly :second-pass))
 
-  (let [client (:client settings/config)]
-    (dosync!! client
-              (alter!! settings/settings assoc :poke-settings :poked)))
+    (let [client (:client config)]
+      (dosync!! client
+                (alter!! (:settings config) assoc :poke-settings :poked)))
 
-  (Thread/sleep 1000)
+    (Thread/sleep 1000)
 
-  (is (= :first-pass (-> system/components :test :some-val)))
-  (is (= :second-pass (-> system/components :test-bouncy :some-val))))
+    (is (= :first-pass (-> system :components deref :test :some-val)))
+    (is (= :second-pass (-> system :components deref :test-bouncy :some-val)))))
 
 (deftest can-shutdown
-  (bootstrap/init! {} [clj-components.test.zk/->TestBounceableComponent])
+  (let [system (bootstrap/init! nil {} [clj-components.test.zk/->TestBounceableComponent])]
 
-  (is (= false var-to-prove-shutdown))
+    (is (= false var-to-prove-shutdown))
 
-  (bootstrap/shutdown!)
+    (let [stopped-system (bootstrap/shutdown! system)]
 
-  (Thread/sleep 1000)
+      (Thread/sleep 1000)
 
-  (is var-to-prove-shutdown)
-  (is (nil? clj-components.system/components)))
+      (is var-to-prove-shutdown)
+      (is (nil? stopped-system)))))
 
 (deftest can-shutdown-and-re-init
-  (bootstrap/init! {} [clj-components.test.zk/->TestComponent])
+  (let [system (bootstrap/init! nil {} [clj-components.test.zk/->TestComponent])
+        stopped-system (bootstrap/shutdown! system)]
 
-  (bootstrap/shutdown!)
+    (let [new-system (bootstrap/init! stopped-system {:bootstrap-foo :bootstrap-bar} [clj-components.test.zk/->TestComponent])]
 
-  (bootstrap/init! {:bootstrap-foo :bootstrap-bar} [clj-components.test.zk/->TestComponent])
+      (Thread/sleep 1000)
 
-  (Thread/sleep 1000)
-
-  (is (= :bootstrap-bar (-> system/components :test :booted-with-settings :bootstrap-foo))))
+      (is (= :bootstrap-bar (-> new-system :components deref :test :booted-with-settings :bootstrap-foo))))))
 
 (defn- expire-zk-conn [conn]
   (let [clone (ZooKeeper. (clj-components.config/zk-ips) 60000, nil, (zk/session-id conn), (zk/session-password conn))]
@@ -94,25 +91,26 @@
     (println "Connection state of original connection is now:" (zk/state conn))))
 
 (deftest can-recover-from-severed-zk-connection
-  (bootstrap/init! {} [clj-components.test.zk/->TestComponent
-                       clj-components.test.zk/->TestBounceableComponent])
+  (let [system (bootstrap/init! nil {} [clj-components.test.zk/->TestComponent
+                                            clj-components.test.zk/->TestBounceableComponent])]
 
-  (alter-var-root #'some-val (constantly :second-pass))
+       (alter-var-root #'some-val (constantly :second-pass))
 
-  (expire-zk-conn (:client settings/config))
+       (expire-zk-conn (:client @(:config system)))
 
-  (Thread/sleep 2000)
+       (Thread/sleep 2000)
 
-  (is (= :first-pass (-> system/components :test :some-val)))
-  (is (= :second-pass (-> system/components :test-bouncy :some-val)))
+       (is (= :first-pass (-> system :components deref :test :some-val)))
+       (is (= :second-pass (-> system :components deref :test-bouncy :some-val)))
 
-  (alter-var-root #'some-val (constantly :third-pass))
+       (alter-var-root #'some-val (constantly :third-pass))
 
-  (let [client (:client settings/config)]
-    (dosync!! client
-              (alter!! settings/settings assoc :poke-settings :poked)))
+       (let [config @(:config system)
+             client (:client config)]
+         (dosync!! client
+                   (alter!! (:settings config) assoc :poke-settings :poked)))
 
-  (Thread/sleep 1000)
+       (Thread/sleep 1000)
 
-  (is (= :first-pass (-> system/components :test :some-val)))
-  (is (= :third-pass (-> system/components :test-bouncy :some-val))))
+       (is (= :first-pass (-> system :components deref :test :some-val)))
+       (is (= :third-pass (-> system :components deref :test-bouncy :some-val)))))

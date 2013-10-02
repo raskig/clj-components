@@ -19,8 +19,8 @@
         settings (zk-ref client (str "/" (name (zk-root))))]
     (ConfigComponent. client settings)))
 
-(defn add-watcher [settings ref-watcher comps]
-  (add-watch settings nil (fn [& args] (ref-watcher comps))))
+(defn add-watcher [config ref-watcher comps]
+  (add-watch (:settings @config) nil (fn [& args] (ref-watcher comps config))))
 
 (defn disconnect! [config]
   (zk/close (:client config)))
