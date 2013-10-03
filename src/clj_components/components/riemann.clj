@@ -10,4 +10,8 @@
 
   (init [this settings]
     (assoc this :client (when (not-empty (:riemann-host settings))
-                          (r/tcp-client :host (:riemann-host settings))))))
+                          (r/tcp-client :host (:riemann-host settings)))))
+
+  ShutdownComponent
+  (shutdown [this]
+    (r/close-client (:client this))))
