@@ -19,7 +19,11 @@
           (into @components
                 (for [c (vals @components)
                       :when (satisfies? component/BounceOnConfigChange c)]
-                  [(component/registry-key c) (init-component! config {} c)])))
+                  (do
+                    (when (satisfies? component/ShutdownComponent c)
+                      (log/info (format "Shutting down %s" (component/registry-key c)))
+                      (component/shutdown c))
+                    [(component/registry-key c) (init-component! config {} c)]))))
   (log/info "Finished bouncing relevant components."))
 
 (defn- zk-connection-watcher [components config e]
