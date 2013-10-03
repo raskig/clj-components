@@ -23,6 +23,7 @@
   (log/info "Finished bouncing relevant components."))
 
 (defn- zk-connection-watcher [components config e]
+  (log/warn "Zookeeper connection event." e)
   (when (= :Expired (:keeper-state e))
     (log/warn "Zookeeper session expired, reconnecting and bouncing relevant components.")
     (reset! config (init-config! components config))
