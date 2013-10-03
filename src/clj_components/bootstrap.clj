@@ -47,7 +47,7 @@
     (reset! components (zipmap (keys @components) (map (partial init-component! config bootstrap-args) (vals @components))))
     (clj-components.config/add-watcher config bounce-on-config! components)
     (log/info "Components loaded.")
-    (assoc {} :components components :config config)))
+    {:components components :config config}))
 
 (defn shutdown! [system]
   (log/info "Shutting down.")
