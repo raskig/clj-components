@@ -1,7 +1,6 @@
 (ns clj-components.bootstrap
   (:require [clojure.tools.logging :as log]
             [clj-components.component :as component]
-            [clj-components.manifest]
             [clj-components.config]))
 
 (declare init-config!)
@@ -41,7 +40,6 @@
   "Load and instantiate system components."
   [old-system bootstrap-args component-constructors]
   (assert (not old-system))
-  (log/info "Manifest:" (clj-components.manifest/fetch))
 
   (let [components (atom (into {}
                                (for [c-c component-constructors :let [c (c-c)]]
