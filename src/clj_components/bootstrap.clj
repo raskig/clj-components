@@ -13,4 +13,4 @@
 
 (defn shutdown! [system]
   (when system
-    (shutdown! system)))
+    (system/shutdown! system)))
