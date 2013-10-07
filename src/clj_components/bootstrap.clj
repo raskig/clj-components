@@ -30,11 +30,10 @@
   (when (= :Expired (:keeper-state e))
     (log/warn "Zookeeper session expired, reconnecting and bouncing relevant components.")
     (reset! config (init-config! components config))
-    (clj-components.config/add-watcher config bounce-on-config! components)
     (bounce-on-config! components config)))
 
 (defn- init-config! [components config]
-  (clj-components.config/fetch! (partial zk-connection-watcher components config)))
+  (clj-components.config/fetch! (partial zk-connection-watcher components config) (partial bounce-on-config! components config)))
 
 (defn init!
   "Load and instantiate system components."
@@ -47,7 +46,6 @@
         config (atom nil)]
     (reset! config (init-config! components config))
     (reset! components (zipmap (keys @components) (map (partial init-component! config bootstrap-args) (vals @components))))
-    (clj-components.config/add-watcher config bounce-on-config! components)
     (log/info "Components loaded.")
     {:components components :config config}))
 

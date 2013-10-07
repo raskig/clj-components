@@ -14,13 +14,11 @@
 
 (defrecord ConfigComponent [client settings])
 
-(defn fetch! [zk-connection-watcher]
+(defn fetch! [zk-connection-watcher settings-watcher]
   (let [client (connect (zk-ips) :timeout-msec 10000 :watcher zk-connection-watcher)
         settings (zk-ref client (str "/" (name (zk-root))))]
+    (add-watch settings nil (fn [& args] (settings-watcher)))
     (ConfigComponent. client settings)))
-
-(defn add-watcher [config ref-watcher comps]
-  (add-watch (:settings @config) nil (fn [& args] (ref-watcher comps config))))
 
 (defn disconnect! [config]
   (zk/close (:client config)))
