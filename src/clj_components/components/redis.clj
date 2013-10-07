@@ -3,6 +3,11 @@
   (:require [taoensso.carmine :as car]
             [clojure.tools.logging :as log]))
 
+(defmacro wcar [system & body]
+  `(let [spec-server# (-> ~system :components deref :redis :spec-server)
+         pool# (-> ~system :components deref :redis :pool)]
+     (car/with-conn pool# spec-server# ~@body)))
+
 (defrecord RedisComponent []
   BounceOnConfigChange
   SystemComponent
