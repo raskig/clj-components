@@ -12,13 +12,17 @@
   "Zookeeper Root."
   [] (keyword (or (environ/env :clj-fe-zk-root) :clj-fe)))
 
-(defrecord ConfigComponent [client settings])
+(defrecord ConfigComponent [client settings session-id])
 
-(defn fetch! [zk-connection-watcher settings-watcher]
-  (let [client (connect (zk-ips) :timeout-msec 10000 :watcher zk-connection-watcher)
-        settings (zk-ref client (str "/" (name (zk-root))))]
-    (add-watch settings nil (fn [& args] (settings-watcher)))
-    (ConfigComponent. client settings)))
+(defn fetch! [old-config zk-connection-watcher settings-watcher]
+  (let [session-id (or (and (:session-id old-config) (inc (:session-id old-config))) 1)
+        client (connect (zk-ips) :timeout-msec 10000 :watcher (partial zk-connection-watcher session-id))
+        settings (zk-ref client (str "/" (name (zk-root))))
+        bounce-count (atom 0)]
+    (add-watch settings nil (fn [& args]
+                              (swap! bounce-count inc)
+                              (settings-watcher session-id @bounce-count)))
+    (ConfigComponent. client settings session-id)))
 
 (defn disconnect! [config]
   (zk/close (:client config)))
