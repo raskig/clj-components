@@ -1,4 +1,4 @@
-(defproject clj-components "0.1.3-beta8-SNAPSHOT"
+(defproject clj-components "0.1.3-beta8"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
@@ -35,7 +35,11 @@
                  [org.clojure/tools.nrepl "0.2.2"]
 
                  ;; Quartz Component
-                 [clojurewerkz/quartzite "1.0.1"]]
+                 [clojurewerkz/quartzite "1.0.1"]
+
+                 ;; DB Component
+                 [org.clojure/java.jdbc "0.2.3"]
+                 [com.oracle/ojdbc14 "10.2.0.4.0"]]
   :profiles {:dev {:plugins [[lein-environ "0.4.0"]]}}
   :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
