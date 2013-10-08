@@ -32,7 +32,10 @@
                  [ring "1.2.0"]
 
                  ;; NRepl Component
-                 [org.clojure/tools.nrepl "0.2.2"]]
+                 [org.clojure/tools.nrepl "0.2.2"]
+
+                 ;; Quartz Component
+                 [clojurewerkz/quartzite "1.0.1"]]
   :profiles {:dev {:plugins [[lein-environ "0.4.0"]]}}
   :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
