@@ -9,8 +9,9 @@
 
   (init [this settings]
     (let [settings (-> settings :components :memcached)]
-      (when (not-empty (:url settings))
-        (assoc this :connection (c/bin-connection (:url settings))))))
+      (if (not-empty (:url settings))
+        (assoc this :connection (c/bin-connection (:url settings)))
+        this)))
 
   ShutdownComponent
   (shutdown [this]
