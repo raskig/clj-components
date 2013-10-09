@@ -39,7 +39,10 @@
 
                  ;; DB Component
                  [org.clojure/java.jdbc "0.2.3"]
-                 [com.oracle/ojdbc14 "10.2.0.4.0"]]
+                 [com.oracle/ojdbc14 "10.2.0.4.0"]
+
+                 ;; Memcached Component
+                 [clojurewerkz/spyglass "1.0.0"]]
   :profiles {:dev {:plugins [[lein-environ "0.4.0"]]}}
   :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
