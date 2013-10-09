@@ -1,4 +1,4 @@
-(defproject clj-components "0.1.3-beta10-SNAPSHOT"
+(defproject clj-components "0.1.3-beta10"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
@@ -42,7 +42,7 @@
                  [com.oracle/ojdbc14 "10.2.0.4.0"]
 
                  ;; Memcached Component
-                 [clojurewerkz/spyglass "1.0.0"]]
+                 [clojurewerkz/spyglass "1.1.0"]]
   :profiles {:dev {:plugins [[lein-environ "0.4.0"]]}}
   :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
