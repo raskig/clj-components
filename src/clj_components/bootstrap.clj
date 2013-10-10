@@ -1,5 +1,6 @@
 (ns clj-components.bootstrap
-  (:require [clj-components.system :as system]))
+  (:require [clj-components.system :as system]
+            [clojure.tools.logging :as log]))
 
 (defn shutdown! [system]
   (when system
