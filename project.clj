@@ -1,4 +1,4 @@
-(defproject clj-components "0.1.3-beta12-SNAPSHOT"
+(defproject clj-components "0.1.3-beta12"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
@@ -13,11 +13,8 @@
                  ;; Logging
                  ;; Logging should be managed by host application no?
                  [org.clojure/tools.logging "0.2.6"]
-                 [org.slf4j/slf4j-log4j12 "1.6.6"]
-                 [log4j/log4j "1.2.16" :exclusions [javax.mail/mail
-                                                    javax.jms/jms
-                                                    com.sun.jdmk/jmxtools
-                                                    com.sun.jmx/jmxri]]
+                 [ch.qos.logback/logback-classic "1.0.7"]
+                 [net.logstash.logback/logstash-logback-encoder "1.2"]
 
                  ;; ElasticSearch Component
                  [clojurewerkz/elastisch "1.3.0-beta1"]
