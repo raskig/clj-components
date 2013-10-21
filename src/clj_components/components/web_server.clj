@@ -14,7 +14,7 @@
   (let [handler-collection (HandlerCollection.)
         ^Server s (#'jetty/create-server (dissoc options :configurator))
         ^QueuedThreadPool p (QueuedThreadPool. ^Integer (options :max-threads 50))]
-    (doseq [h handlers]
+    (doseq [h (remove nil? handlers)]
       (.addHandler handler-collection (if (or (fn? h) (var? h)) (#'jetty/proxy-handler h) h)))
     (doto s
       (.setHandler handler-collection)
