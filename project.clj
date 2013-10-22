@@ -9,12 +9,12 @@
                  [com.fasterxml.jackson.core/jackson-core "2.2.1"]
 
                  ;; Config
-                 [zookeeper-clj "0.9.5" :exclusions [org.slf4j/slf4j-log4j12]]
+                 [zookeeper-clj "0.9.5" :exclusions [org.slf4j/slf4j-log4j12
+                                                     log4j]]
                  [avout "0.5.3"]
                  [environ "0.4.0"]
 
                  ;; Logging
-                 ;; Logging should be managed by host application no?
                  [org.clojure/tools.logging "0.2.6"]
                  [ch.qos.logback/logback-classic "1.0.13" :exclusions [org.slf4j/slf4j-api]]
                  [ch.qos.logback/logback-access "1.0.13"]
