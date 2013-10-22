@@ -16,7 +16,7 @@
                  ;; Logging
                  ;; Logging should be managed by host application no?
                  [org.clojure/tools.logging "0.2.6"]
-                 [ch.qos.logback/logback-classic "1.0.12" :exclusions [org.slf4j/slf4j-api]]
+                 [ch.qos.logback/logback-classic "1.0.13" :exclusions [org.slf4j/slf4j-api]]
                  [ch.qos.logback/logback-access "1.0.13"]
                  [ch.qos.logback/logback-core "1.0.13"]
                  [org.slf4j/slf4j-api "1.7.5"]
