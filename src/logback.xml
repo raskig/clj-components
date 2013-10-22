@@ -1,5 +1,5 @@
 <!-- Logback configuration. See http://logback.qos.ch/manual/index.html -->
-<configuration>
+<configuration scan="false" debug="false">
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} %-5level%logger{36} - %msg%n</pattern>

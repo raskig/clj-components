@@ -26,7 +26,9 @@
 (defn- request-log-handler []
   (doto (RequestLogHandler.)
     (.setRequestLog
-     (doto (RequestLogImpl.) (.setResource "/logback-access.xml")))))
+     (doto (RequestLogImpl.)
+       (.setQuiet true)
+       (.setResource "/logback-access.xml")))))
 
 (defrecord WebServerComponent []
   SystemComponent
