@@ -2,7 +2,7 @@
 <configuration scan="false" debug="false">
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level%logger{36} - %msg%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} %level %logger{36} - %msg%n</pattern>
     </encoder>
 
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -14,7 +14,7 @@
     </rollingPolicy>
 
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
+      <level>DEBUG</level>
     </filter>
   </appender>
 
@@ -36,10 +36,10 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} %-5level%logger{36} - %msg%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} %level %logger{36} - %msg%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>INFO</level>
+      <level>DEBUG</level>
     </filter>
   </appender>
 
