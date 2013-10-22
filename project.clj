@@ -5,6 +5,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
 
+                 ;; Shared
+                 [com.fasterxml.jackson.core/jackson-core "2.2.1"]
+
                  ;; Config
                  [zookeeper-clj "0.9.5" :exclusions [org.slf4j/slf4j-log4j12]]
                  [avout "0.5.3"]
@@ -13,13 +16,14 @@
                  ;; Logging
                  ;; Logging should be managed by host application no?
                  [org.clojure/tools.logging "0.2.6"]
-                 [ch.qos.logback/logback-classic "1.0.7"]
+                 [ch.qos.logback/logback-classic "1.0.12" :exclusions [org.slf4j/slf4j-api]]
                  [ch.qos.logback/logback-access "1.0.13"]
                  [ch.qos.logback/logback-core "1.0.13"]
-                 [net.logstash.logback/logstash-logback-encoder "1.2"]
+                 [org.slf4j/slf4j-api "1.7.5"]
+                 [net.logstash.logback/logstash-logback-encoder "1.2" :exclusions [com.fasterxml.jackson.core/jackson-core]]
 
                  ;; ElasticSearch Component
-                 [clojurewerkz/elastisch "1.3.0-beta1"]
+                 [clojurewerkz/elastisch "1.3.0-beta1" :exclusions [com.fasterxml.jackson.core/jackson-core]]
 
                  ;; Riemann Component
                  [riemann-clojure-client "0.2.6"]
