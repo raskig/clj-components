@@ -8,7 +8,13 @@
   (registry-key [this] :nrepl)
 
   (init [this {:keys [nrepl-port]}]
-    (when nrepl-port
-      (nrserver/start-server :port nrepl-port)
-      (log/info (format "nRepl server started on %s" nrepl-port)))
-    this))
+    (if nrepl-port
+      (let [server (nrserver/start-server :port nrepl-port)]
+        (log/info (format "nRepl server started on %s" nrepl-port))
+        (assoc this :server server))
+      this))
+
+  ShutdownComponent
+  (shutdown [{:keys [server]}]
+    (when server
+      (.close server))))
