@@ -19,9 +19,9 @@
         client (connect (zk-ips) :timeout-msec 10000 :watcher (partial zk-connection-watcher session-id))
         settings (zk-ref client (str "/" (name (zk-root))))
         bounce-count (atom 0)]
-    (add-watch settings nil (fn [& args]
+    (add-watch settings nil (fn [_ _ _ new-settings]
                               (swap! bounce-count inc)
-                              (settings-watcher session-id @bounce-count)))
+                              (settings-watcher new-settings session-id @bounce-count)))
     (ConfigComponent. client settings session-id)))
 
 (defn disconnect! [config]

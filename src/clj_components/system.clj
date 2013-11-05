@@ -7,15 +7,14 @@
   (init-config! [this])
   (init-components! [this bootstrap-args])
   (shutdown-components! [this])
-  (bounce-components-on-config! [this session-id bounce-count])
   (shutdown! [this]))
 
 (defn- on-components! [f components]
   (swap! components #(zipmap (keys %) (map f (vals %)))))
 
-(defn- init-component! [system bootstrap-args c]
+(defn- init-component! [settings bootstrap-args c]
   (log/info (format "Loading %s" (component/registry-key c)))
-  (let [component-settings (get-in @(:settings @(:config system))
+  (let [component-settings (get-in settings
                                    (if (satisfies? component/SpecifySettingsPath c)
                                      (component/settings-path c)
                                      [:components (component/registry-key c)]))]
@@ -27,17 +26,25 @@
     (component/shutdown component))
   component)
 
-(defn- bounce-component! [system component]
+(defn- bounce-component! [settings component]
   (if (satisfies? component/BounceOnConfigChange component)
-    (->> component shutdown-component! (init-component! system {}))
+    (->> component shutdown-component! (init-component! settings {}))
     component))
+
+(defn- bounce-components-on-config! [system new-settings session-id bounce-count]
+  (log/info (format "Configuration change detected for session %s, bouncing relevant components (%s times)."
+                    session-id bounce-count))
+
+  (on-components! (partial bounce-component! new-settings) (:components system))
+
+  (log/info "Finished bouncing relevant components."))
 
 (defn- handle-reconnect! [system session-id e]
     (log/warn "Zookeeper connection event:" e)
     (when (= :Expired (:keeper-state e))
       (log/warn (format "Zookeeper session %s expired, reconnecting and bouncing relevant components." session-id))
       (init-config! system)
-      (bounce-components-on-config! system (:session-id @(:config system)) 0)))
+      (bounce-components-on-config! system @(:settings @(:config system)) (:session-id @(:config system)) 0)))
 
 (defrecord ComponentSystem [config components]
   ComponentSystemProtocol
@@ -48,19 +55,12 @@
            (partial bounce-components-on-config! this)))
 
   (init-components! [this bootstrap-args]
-    (on-components! (partial init-component! this bootstrap-args) components)
+    (on-components! (partial init-component! @(:settings @config) bootstrap-args) components)
 
     (log/info "Components loaded."))
 
   (shutdown-components! [this]
     (on-components! shutdown-component! components))
-
-  (bounce-components-on-config! [this session-id bounce-count]
-    (log/info (format "Configuration change detected for session %s, bouncing relevant components (%s times)." session-id bounce-count))
-
-    (on-components! (partial bounce-component! this) components)
-
-    (log/info "Finished bouncing relevant components."))
 
   (shutdown! [this]
     (log/info "Shutting down.")
