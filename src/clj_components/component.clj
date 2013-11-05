@@ -5,6 +5,9 @@
 
   (init [this settings]))
 
+(defprotocol SpecifySettingsPath
+  (settings-path [this]))
+
 (defprotocol ShutdownComponent
   (shutdown [this]))
 

@@ -9,8 +9,7 @@
   (registry-key [this] :es)
 
   (init [this settings]
-    (let [settings (-> settings :components :es)
-          es-url (:es-url settings)
+    (let [es-url (:es-url settings)
           es-cluster (:es-cluster settings)]
       (if (and es-url es-cluster)
         (let [pairs (->> (clojure.string/split (:es-url settings) #",")
@@ -20,7 +19,7 @@
           (assoc this
             :url es-url
             :cluster es-cluster
-            :client (native/connect! pairs {"cluster.name" (:es-cluster settings)
+            :client (native/connect! pairs {"cluster.name" es-cluster
                                             "client.transport.ping_timeout" (:es-client-ping-timout settings "10s")})))
         this)))
 

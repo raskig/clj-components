@@ -15,7 +15,11 @@
 
 (defn- init-component! [system bootstrap-args c]
   (log/info (format "Loading %s" (component/registry-key c)))
-  (component/init c (merge @(:settings @(:config system)) bootstrap-args)))
+  (let [component-settings (get-in @(:settings @(:config system))
+                                   (if (satisfies? component/SpecifySettingsPath c)
+                                     (component/settings-path c)
+                                     [:components (component/registry-key c)]))]
+    (component/init c (merge component-settings bootstrap-args))))
 
 (defn- shutdown-component! [component]
   (when (satisfies? component/ShutdownComponent component)

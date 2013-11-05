@@ -10,21 +10,20 @@
   (registry-key [this] :memcached)
 
   (init [this settings]
-    (let [settings (-> settings :components :memcached)]
-      (if (not-empty (:url settings))
-        (let [conn (c/bin-connection (:url settings))
-              is-connected? (atom false)]
-          (assert (.addObserver conn
-                                (proxy [ConnectionObserver] []
-                                  (connectionEstablished [_ _]
-                                    (log/info "Connection established for memcached.")
-                                    (reset! is-connected? true))
+    (if (not-empty (:url settings))
+      (let [conn (c/bin-connection (:url settings))
+            is-connected? (atom false)]
+        (assert (.addObserver conn
+                              (proxy [ConnectionObserver] []
+                                (connectionEstablished [_ _]
+                                  (log/info "Connection established for memcached.")
+                                  (reset! is-connected? true))
 
-                                  (connectionLost [_]
-                                    (log/warn "Connection lost for memcached.")
-                                    (reset! is-connected? false)))))
-          (assoc this :connection conn :is-connected? is-connected?))
-        (dissoc this :connection :is-connected?))))
+                                (connectionLost [_]
+                                  (log/warn "Connection lost for memcached.")
+                                  (reset! is-connected? false)))))
+        (assoc this :connection conn :is-connected? is-connected?))
+      (dissoc this :connection :is-connected?)))
 
   ShutdownComponent
   (shutdown [this]
