@@ -13,14 +13,18 @@
 (defn ^Server run-jetty-hacked [options & handlers]
   (let [handler-collection (HandlerCollection.)
         ^Server s (#'jetty/create-server (dissoc options :configurator))
-        ^QueuedThreadPool p (QueuedThreadPool. ^Integer (options :max-threads 50))]
+        ^QueuedThreadPool p (QueuedThreadPool. ^Integer (options :max-threads 50))
+        dirty-shutdown (options :dirty-shutdown false)
+        graaceful-timeout (if dirty-shutdown
+                            1
+                            10000)]
     (doseq [h (remove nil? handlers)]
       (.addHandler handler-collection (if (or (fn? h) (var? h)) (#'jetty/proxy-handler h) h)))
     (doto s
       (.setHandler handler-collection)
       (.setThreadPool p)
-      (.setGracefulShutdown 10000)
-      (.setStopAtShutdown true)
+      (.setGracefulShutdown graaceful-timeout)
+      (.setStopAtShutdown (not dirty-shutdown))
       (.start))))
 
 (defn- request-log-handler []
@@ -34,11 +38,12 @@
   SystemComponent
   (registry-key [this] :web-server)
 
-  (init [this {:keys [http-port http-handler http-request-logs?]}]
+  (init [this {:keys [http-port http-handler http-request-logs? dirty-shutdown]}]
     (assert http-port)
     (assert http-handler)
 
-    (let [server (run-jetty-hacked {:port http-port}
+    (let [server (run-jetty-hacked {:port http-port
+                                    :dirty-shutdown dirty-shutdown}
                                    http-handler
                                    (when http-request-logs? (request-log-handler)))
           hostname (.getHostName (java.net.InetAddress/getLocalHost))]
