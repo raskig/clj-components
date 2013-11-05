@@ -9,9 +9,11 @@
   (registry-key [this] :riemann)
 
   (init [this settings]
-    (assoc this :client (when (not-empty (:riemann-host settings))
-                          (r/tcp-client :host (:riemann-host settings)))))
+    (let [riemann-host (-> settings :components :riemann :riemann-host)]
+      (assoc this :client (when (not-empty riemann.host)
+                            (r/tcp-client :host riemann.host)))))
 
   ShutdownComponent
   (shutdown [this]
-    (r/close-client (:client this))))
+    (when-let [client (:client this)]
+      (r/close-client client))))
