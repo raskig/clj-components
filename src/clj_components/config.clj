@@ -2,7 +2,8 @@
   (:use [avout.core]
         [clj-components.component])
   (:require [environ.core :as environ]
-            [zookeeper :as zk]))
+            [zookeeper :as zk]
+            [clojure.tools.logging :as log]))
 
 (defn zk-ips
   "Zookeeper IPs."
@@ -15,6 +16,7 @@
 (defrecord ConfigComponent [client settings session-id])
 
 (defn fetch! [old-config zk-connection-watcher settings-watcher]
+  (log/info (format "Connecting to ZK %s with root %s" (zk-ips) (zk-root)))
   (let [session-id (or (and (:session-id old-config) (inc (:session-id old-config))) 1)
         client (connect (zk-ips) :timeout-msec 10000 :watcher (partial zk-connection-watcher session-id))
         settings (zk-ref client (str "/" (name (zk-root))))
