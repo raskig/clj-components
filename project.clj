@@ -47,8 +47,8 @@
                  ;; Memcached Component
                  [clojurewerkz/spyglass "1.1.0"]]
   :profiles {:dev {:plugins [[lein-environ "0.4.0"]]}}
-  :repositories {"snapshots" {:url "http://10.251.76.32:8081/nexus/content/repositories/snapshots"
+  :repositories {"snapshots" {:url "10.251.76.73:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
-                 "releases" {:url "http://10.251.76.32:8081/nexus/content/repositories/releases"
+                 "releases" {:url "http://10.251.76.73:8081/nexus/content/repositories/releases"
                              :username "admin" :password "admin123" }
-                 "thirdparty" {:url "http://10.251.76.32:8081/nexus/content/repositories/thirdparty"}})
+                 "thirdparty" {:url "http://10.251.76.73:8081/nexus/content/repositories/thirdparty"}})
