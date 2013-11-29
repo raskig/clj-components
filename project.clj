@@ -1,4 +1,4 @@
-(defproject clj-components "0.1.4"
+(defproject clj-components "0.1.5"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
@@ -23,7 +23,7 @@
                  [net.logstash.logback/logstash-logback-encoder "1.2" :exclusions [com.fasterxml.jackson.core/jackson-core]]
 
                  ;; ElasticSearch Component
-                 [clojurewerkz/elastisch "1.3.0-rc1" :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 [clojurewerkz/elastisch "1.3.0-rc2" :exclusions [com.fasterxml.jackson.core/jackson-core]]
 
                  ;; Riemann Component
                  [riemann-clojure-client "0.2.6"]
