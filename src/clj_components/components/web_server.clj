@@ -10,6 +10,14 @@
            (org.eclipse.jetty.server.handler HandlerCollection ContextHandlerCollection
                                              RequestLogHandler)))
 
+(defn- set-buffer-sizes [server]
+  (doseq [connector (.getConnectors server)]
+    (let [header-size 1048576]
+      (.setRequestHeaderSize connector
+                             header-size)
+      (.setResponseHeaderSize connector
+                              header-size))))
+
 (defn ^Server run-jetty-hacked [options & handlers]
   (let [handler-collection (HandlerCollection.)
         ^Server s (#'jetty/create-server (dissoc options :configurator))
@@ -25,6 +33,7 @@
       (.setThreadPool p)
       (.setGracefulShutdown graaceful-timeout)
       (.setStopAtShutdown (not dirty-shutdown))
+      (set-buffer-sizes)
       (.start))))
 
 (defn- request-log-handler []
