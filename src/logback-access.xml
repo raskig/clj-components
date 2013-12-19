@@ -5,7 +5,7 @@
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${log.dir}/access.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>access.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+      <fileNamePattern>${log.dir}/access.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
     </rollingPolicy>
 
     <encoder>
