@@ -1,4 +1,4 @@
-(defproject clj-components "0.1.5-beta3"
+(defproject clj-components "0.1.5-beta4"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
@@ -6,11 +6,19 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  ;; Shared
-                 [com.fasterxml.jackson.core/jackson-core "2.2.1"]
+                 [com.fasterxml.jackson.core/jackson-core "2.2.1" :exclusions [commons-codec]]
 
                  ;; Config
-                 [zookeeper-clj "0.9.5" :exclusions [org.slf4j/slf4j-log4j12
-                                                     log4j]]
+                 [zookeeper-clj "0.9.5" :exclusions [org.apache.zookeeper/zookeeper
+                                                     commons-codec]]
+
+                 [org.apache.zookeeper/zookeeper "3.4.5" :exclusions [commons-codec
+                                                                      com.sun.jmx/jmxri
+                                                                      com.sun.jdmk/jmxtools
+                                                                      javax.jms/jms
+                                                                      org.slf4j/slf4j-log4j12
+                                                                      log4j]]
+
                  [avout "0.5.3"]
                  [environ "0.4.0"]
 
@@ -29,7 +37,7 @@
                  [riemann-clojure-client "0.2.6"]
 
                  ;; Redis Component
-                 [com.taoensso/carmine "1.7.0"]
+                 [com.taoensso/carmine "1.7.0" :exclusions [commons-codec]]
 
                  ;; WebServer Component
                  [ring "1.2.0"]
