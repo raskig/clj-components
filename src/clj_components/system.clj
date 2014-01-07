@@ -5,9 +5,19 @@
             [clj-components.protocols.config-supplier :as config-supplier]
             [clj-components.component-management :as components-manager]))
 
-(defn- bounce-components-on-config! [system new-settings session-id bounce-count]
-  (log/info (format "Configuration change detected for session %s, bouncing relevant components (%s times)."
-                    session-id bounce-count)))
+;;-----------------------------------------------------------
+;; Welcome to the ComponentSystem
+;;
+;; A ComponentSystem manages components. It makes use of a
+;; pluggable config-supplier so source config for components.
+;;
+;; The config-supplier may also call back to the ComponentSystem,
+;; to do things like bounce the odd component when appropiate.
+;;
+;; Examples might be when a piece of config data underpinning a
+;; component changes, of if all components need bouncing due to
+;; a temporal disconnect from the config source.
+;;-----------------------------------------------------------
 
 (defrecord ComponentSystem [config-supplier bootstrap-args components]
   ComponentSystemProtocol
