@@ -19,7 +19,7 @@
 
     (log/info "Finished bouncing relevant components.")))
 
-(defn- atom-watcher [system client path bounce-count]
+(defn- atom-watcher [system client path bounce-count e]
   (swap! bounce-count inc)
 
   (log/info (format "Configuration change detected for atom %s in session %s (%s times)."
@@ -31,7 +31,7 @@
   ConfigSupplier
 
   (init! [this system]
-    (log/info (format "Connecting to ZK %s with root %s" (config/zk-ips)))
+    (log/info (format "Connecting to ZK %s with root %s" (config/zk-ips) (config/zk-root)))
 
     (reset! client
             (avout/connect (config/zk-ips)
@@ -42,11 +42,12 @@
     (zk/close))
 
   (fetch [this system path]
-    (let [atom (avout/zk-atom client (str "/" (clojure.string/join "/" (map name path))))
+    (let [settings-atom (avout/zk-atom @client
+                                       (str "/" (clojure.string/join "/" (map name (cons (config/zk-root) path)))))
           bounce-count (atom 0)]
 
       ;; Add a watch through Clojures STM
-      (add-watch atom path (partial atom-watcher system client path (atom 0))))))
+      (add-watch settings-atom path (partial atom-watcher system client path (atom 0))))))
 
 (defn supplier []
   (AvoutConfigSupplier. (atom nil)))

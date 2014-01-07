@@ -1,5 +1,5 @@
 (ns clj-components.components.elasticsearch-rest
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojurewerkz.elastisch.rest :as esr]
             [clojure.tools.logging :as log]))
 

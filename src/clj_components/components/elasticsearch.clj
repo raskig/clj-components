@@ -1,5 +1,5 @@
 (ns clj-components.components.elasticsearch
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojurewerkz.elastisch.native :as native]
             [clojure.tools.logging :as log]))
 

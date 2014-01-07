@@ -1,5 +1,5 @@
 (ns clj-components.components.quartz
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojurewerkz.quartzite.scheduler :as qs]
             [clojurewerkz.quartzite.jobs :as j]
             [clojurewerkz.quartzite.triggers :as t]

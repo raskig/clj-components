@@ -1,5 +1,5 @@
 (ns clj-components.components.web-server
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojure.tools.logging :as log]
             [ring.adapter.jetty :as jetty]
             [clojure.java.io])

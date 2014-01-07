@@ -1,5 +1,5 @@
 (ns clj-components.components.logging
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojure.tools.logging :as log])
   (:import [ch.qos.logback.classic LoggerContext Level]
            [org.slf4j LoggerFactory]

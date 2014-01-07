@@ -1,5 +1,5 @@
 (ns clj-components.components.memcached
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojurewerkz.spyglass.client :as c]
             [clojure.tools.logging :as log])
   (:import [net.spy.memcached ConnectionObserver]))

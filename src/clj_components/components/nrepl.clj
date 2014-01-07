@@ -1,5 +1,5 @@
 (ns clj-components.components.nrepl
-  (:use [clj-components.component])
+  (:use [clj-components.protocols.component])
   (:require [clojure.tools.nrepl.server :as nrserver]
             [clojure.tools.logging :as log]))
 

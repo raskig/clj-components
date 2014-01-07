@@ -24,7 +24,7 @@
 
         component-settings (config-supplier/fetch config-supplier system path)]
 
-    (component/init c (merge component-settings bootstrap-args))))
+    (component/init c (merge @component-settings bootstrap-args))))
 
 (defn shutdown-component! [component]
   (when (satisfies? component/ShutdownComponent component)

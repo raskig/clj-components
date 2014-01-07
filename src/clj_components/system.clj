@@ -1,7 +1,6 @@
 (ns clj-components.system
   (:use [clj-components.protocols.system])
-  (:require [clj-components.component :as component]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [clj-components.config]
             [clj-components.protocols.config-supplier :as config-supplier]
             [clj-components.component-management :as components-manager]))
@@ -17,8 +16,7 @@
     (log/info "System starting up.")
 
     (config-supplier/init! config-supplier this)
-    (components-manager/on-components!
-     (partial components-manager/init-component! this config-supplier bootstrap-args) components)
+    (components-manager/on-components! (partial components-manager/init-component! this) components)
 
     (log/info "System started."))
 
@@ -43,3 +41,7 @@
 (defn make-system [component-constructors config-supplier bootstrap-args]
   (ComponentSystem. config-supplier bootstrap-args
                     (components-manager/components-atom component-constructors)))
+
+
+;; todo we need a proper migration, should live in the avout space?
+;; prob a mix of admin code and component code

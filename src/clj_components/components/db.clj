@@ -1,5 +1,5 @@
 (ns clj-components.components.db
-  (:use [clj-components.component]))
+  (:use [clj-components.protocols.component]))
 
 (defrecord DbComponent []
   BounceOnConfigChange
