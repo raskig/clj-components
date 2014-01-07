@@ -56,6 +56,7 @@
                  [clojurewerkz/spyglass "1.1.0"]]
   :profiles {:dev {:source-paths ["dev"]
                    :plugins [[lein-environ "0.4.0"]]}}
+  :jvm-opts ["-Dlog.dir=logs"]
   :repositories {"snapshots" {:url "10.251.76.73:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
                  "releases" {:url "http://10.251.76.73:8081/nexus/content/repositories/releases"
