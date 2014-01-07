@@ -1,7 +1,8 @@
 (ns clj-components.bootstrap
-  (:require [clj-components.system :as system]
-            [clojure.tools.logging :as log]
-            [clj-components.components.logging]))
+  (:require [clj-components.system]
+            [clj-components.avout-config]
+            [clj-components.protocols.system :as system]
+            [clojure.tools.logging :as log]))
 
 (defn shutdown! [system]
   (when system
@@ -12,11 +13,12 @@
   [old-system bootstrap-args component-constructors]
   (assert (not old-system))
 
-  (clj-components.components.logging/set-level! 'avout :debug)
+  (let [system (clj-components.system/make-system
+                component-constructors
+                (clj-components.avout-config/supplier)
+                bootstrap-args)]
 
-  (let [system (system/make-system component-constructors)]
-    (system/init-config! system)
-    (system/init-components! system bootstrap-args)
+    (system/init! system)
 
     (.addShutdownHook
      (Runtime/getRuntime)
