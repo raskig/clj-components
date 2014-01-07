@@ -29,6 +29,17 @@
 (defn disconnect! [config]
   (zk/close (:client config)))
 
+(defn- field-on-object [o f]
+  (let [f (.getDeclaredField (.getClass o) f)]
+    (.setAccessible f true)
+    (.get f o)))
+
+(defn zk-client-watches [client]
+  (let [watch-manager (field-on-object client "watchManager")]
+    (into {}
+          (for [watch-type [:exist :data :child]]
+            [watch-type (field-on-object watch-manager (str (name watch-type) "Watches"))]))))
+
 ;; ZK Notes -------------------------------------------------------------
 
 ;; ZK Connection Watcher Events:
