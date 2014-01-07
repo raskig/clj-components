@@ -34,11 +34,16 @@
     (.setAccessible f true)
     (.get f o)))
 
-(defn zk-client-watches [client]
+(defn zk-client-watchers [client]
   (let [watch-manager (field-on-object client "watchManager")]
     (into {}
           (for [watch-type [:exist :data :child]]
             [watch-type (field-on-object watch-manager (str (name watch-type) "Watches"))]))))
+
+(defn zk-watcher-totals [client]
+  (let [watches (zk-client-watches client)]
+    (zipmap (keys watches)
+            (map #(reduce + (map count (vals %))) (vals watches)))))
 
 ;; ZK Notes -------------------------------------------------------------
 
@@ -50,3 +55,6 @@
 ;; Disconnect:
 ;; the connection watcher is called with {:event-type :None, :keeper-state :Disconnected, :path nil}
 ;; the connection watcher is called with {:event-type :None, :keeper-state :Expired, :path nil}
+
+;; Client is usually accessible via:
+;; (def client (-> fe.system.system/system :config deref :client))
