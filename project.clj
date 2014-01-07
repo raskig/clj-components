@@ -1,4 +1,4 @@
-(defproject clj-components "0.1.5-beta7"
+(defproject clj-components "0.1.5-beta8"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
