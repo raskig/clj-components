@@ -41,7 +41,7 @@
             [watch-type (field-on-object watch-manager (str (name watch-type) "Watches"))]))))
 
 (defn zk-watcher-totals [client]
-  (let [watches (zk-client-watches client)]
+  (let [watches (zk-client-watchers client)]
     (zipmap (keys watches)
             (map #(reduce + (map count (vals %))) (vals watches)))))
 
