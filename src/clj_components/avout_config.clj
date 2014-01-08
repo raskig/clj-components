@@ -87,3 +87,16 @@
 (defn migrate-component! [{:keys [config-supplier] :as system} k]
   (avout/reset!! (fetch config-supplier [:components k])
                  (-> system fetch-old deref :components k)))
+
+;; 3 watchers on startup
+;;   we have the atom mashed into the component
+;;   we have an atom fetched so we can watch it (which bounces the component)
+;;     whenever a fetch occurs we have a new watcher (to bounce the state within the atom)
+;;   we add a watcher ourselves
+
+;; when you do a swap!! on a random atom the count doesn't increase
+;; when you do a swap!! on a component atom, the count DOES increase... why?
+;;  because the component is bounced, we fetch a new atom
+;;  the old watcher stays hanging around
+;;    so, there's no reason to re-fetch the atom. No point whatsoever.
+;;    Only time it makes sense to refetch is on SESSION_EXPIRY
