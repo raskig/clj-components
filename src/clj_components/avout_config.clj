@@ -73,3 +73,14 @@
 
 (defn supplier []
   (AvoutConfigSupplier. (atom nil) (atom {})))
+
+;; Migration
+;;  Do a simple story, like migrate ES from shared ref to singular atom
+;;  Be good to leave current migration stuff in place, like it's backwards compatible (somehow)
+
+(defn migrate-component! [system k]
+  (let [config-supplier (:config-supplier system)
+        client (-> config-supplier :client deref)
+        original-settings (fetch config-supplier [])
+        new-settings (fetch config-supplier k)]
+    (avout/reset!! new-settings @original-settings)))
