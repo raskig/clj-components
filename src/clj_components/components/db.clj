@@ -6,9 +6,9 @@
   SystemComponent
   (registry-key [this] :db)
 
-  (init [this settings]
+  (init [this settings _]
     (assoc this :db {:classname "oracle.jdbc.driver.OracleDriver"
                      :subprotocol "oracle:thin"
-                     :subname (-> settings :db-url)
-                     :user (-> settings :db-user)
-                     :password (-> settings :db-password)})))
+                     :subname (-> settings deref :db-url)
+                     :user (-> settings deref :db-user)
+                     :password (-> settings deref :db-password)})))

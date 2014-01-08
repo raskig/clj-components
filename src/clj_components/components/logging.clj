@@ -16,6 +16,6 @@
   SystemComponent
   (registry-key [this] :logging)
 
-  (init [this {:keys [loggers]}]
+  (init [this _ {:keys [loggers]}]
     (doseq [{:keys [ns level]} loggers]
       (set-level! ns level))))
