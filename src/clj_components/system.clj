@@ -29,6 +29,11 @@
 
     (components-manager/on-components! (partial components-manager/init-component! this) components)
 
+    (doseq [[k c] @components]
+      (config-supplier/register-watcher config-supplier
+                                        (components-manager/settings-path c)
+                                        (fn [] (bounce-component! this k))))
+
     (log/info "System started."))
 
   (shutdown! [this]

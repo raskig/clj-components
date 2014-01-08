@@ -1,6 +1,7 @@
 (ns clj-components.protocols.config-supplier)
 
 (defprotocol ConfigSupplier
-  (init! [this system])
+  (init! [this reconnect-fn])
   (close! [this])
-  (fetch [this system path]))
+  (fetch [this path])
+  (register-watcher [this path watch-fn]))

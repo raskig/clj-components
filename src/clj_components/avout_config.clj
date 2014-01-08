@@ -13,31 +13,39 @@
 ;;
 ;; Also deals with the situation where a SESSION_EXPIRED event
 ;; is raised from ZK. In this case we want to bounce the client,
-;; bounce components, and re-watch atoms for changes.
+;; let the system know, and re-watch atoms for changes.
 ;;-----------------------------------------------------------
 
 (defn- connection-watcher [config-supplier reconnect-fn e]
   (log/warn "Zookeeper connection event:" e)
   (when (= :Expired (:keeper-state e))
 
-    (log/warn "Zookeeper session expired, reconnecting and bouncing relevant components.")
+    (log/warn "Zookeeper session expired, reconnecting.")
 
     (close! config-supplier)
     (init! config-supplier reconnect-fn)
 
+    (log/info "Zookeeper reconnecting complete.")
+
     (reconnect-fn)
 
-    (log/info "Finished bouncing relevant components.")))
+    (log/info "Re-registering watchers.")
 
-(defn- atom-watcher [system client path bounce-count e]
-  (swap! bounce-count inc)
+    ;; Re-apply watchers
+    (doseq [[path watcher-fn] @(:watchers config-supplier)]
+      (register-watcher config-supplier path watcher-fn))
+
+    (log/info "Re-registering watchers complete.")))
+
+(defn- atom-watcher [system client path watch-count f e]
+  (swap! watch-count inc)
 
   (log/info (format "Configuration change detected for atom %s in session %s (%s times)."
-                    path (.getSessionId client) bounce-count))
+                    path (.getSessionId client) watch-count))
 
-  (system/bounce-component! system path))
+  (f))
 
-(defrecord AvoutConfigSupplier [client]
+(defrecord AvoutConfigSupplier [client watchers]
   ConfigSupplier
 
   (init! [this reconnect-fn]
@@ -51,13 +59,17 @@
   (close! [this]
     (zk/close))
 
-  (fetch [this system path]
-    (let [settings-atom (avout/zk-atom @client
-                                       (str "/" (clojure.string/join "/" (map name (cons (config/zk-root) path)))))
-          bounce-count (atom 0)]
+  (fetch [this path]
+    (avout/zk-atom @client (str "/" (clojure.string/join "/" (map name (cons (config/zk-root) path))))))
 
+  (register-watcher [this path watcher-fn]
+    (let [settings-atom (fetch this path)]
       ;; Add a watch through Clojures STM
-      (add-watch settings-atom path (partial atom-watcher system client path (atom 0))))))
+      (add-watch settings-atom path (partial atom-watcher client path watcher-fn (atom 0)))
+      ;; Register watcher with this config supplier
+      (swap! watchers path watcher-fn)
+
+      (log/info "Registered watcher for path" path))))
 
 (defn supplier []
-  (AvoutConfigSupplier. (atom nil)))
+  (AvoutConfigSupplier. (atom nil) (atom {})))
