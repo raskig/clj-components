@@ -25,4 +25,5 @@
 
   ShutdownComponent
   (shutdown [this]
-    (.close native/*client*)))
+    (when native/*client*
+      (.close native/*client*))))

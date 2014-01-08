@@ -31,7 +31,11 @@
 (defn shutdown-component! [component]
   (when (satisfies? component/ShutdownComponent component)
     (log/info (format "Shutting down %s" (component/registry-key component)))
-    (component/shutdown component))
+    (try
+      (component/shutdown component)
+      (catch Throwable t
+        (log/warn t "Could not shutdown component" (component/registry-key component))
+        component)))
   component)
 
 (defn bounce-component! [system component]

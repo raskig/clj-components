@@ -86,4 +86,4 @@
 
 (defn migrate-component! [{:keys [config-supplier] :as system} k]
   (avout/reset!! (fetch config-supplier [:components k])
-                 (-> clj-components.bootstrap/s fetch-old deref :components k)))
+                 (-> system fetch-old deref :components k)))
