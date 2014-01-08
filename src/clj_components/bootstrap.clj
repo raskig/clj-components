@@ -1,6 +1,7 @@
 (ns clj-components.bootstrap
   (:require [clj-components.system :as system]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clj-components.components.logging]))
 
 (defn shutdown! [system]
   (when system
@@ -10,6 +11,8 @@
   "Load and instantiate system components."
   [old-system bootstrap-args component-constructors]
   (assert (not old-system))
+
+  (clj-components.components.logging/set-level! 'avout :debug)
 
   (let [system (system/make-system component-constructors)]
     (system/init-config! system)
