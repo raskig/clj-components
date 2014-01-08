@@ -2,6 +2,7 @@
   (:require [clj-components.system]
             [clj-components.avout-config]
             [clj-components.protocols.system :as system]
+            [clj-components.protocols.config-supplier :as config-supplier]
             [clojure.tools.logging :as log]))
 
 (defn shutdown! [system]

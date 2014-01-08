@@ -24,6 +24,7 @@
         this)))
 
   ShutdownComponent
-  (shutdown [this]
-    (when native/*client*
+  (shutdown [{:keys [client]}]
+    (when client
+      (log/info (format "Shutting down es client %s" client))
       (.close native/*client*))))
