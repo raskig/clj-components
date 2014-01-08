@@ -47,7 +47,7 @@
   SystemComponent
   (registry-key [this] :web-server)
 
-  (init [this {:keys [http-port http-handler http-request-logs? dirty-shutdown]}]
+  (init [this _ {:keys [http-port http-handler http-request-logs? dirty-shutdown]}]
     (assert http-port)
     (assert http-handler)
 

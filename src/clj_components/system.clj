@@ -15,9 +15,14 @@
 ;; to do things like bounce the odd component when appropiate.
 ;;
 ;; Examples might be when a piece of config data underpinning a
-;; component changes, of if all components need bouncing due to
+;; component changes, of if components need bouncing due to
 ;; a temporal disconnect from the config source.
 ;;-----------------------------------------------------------
+
+(defn update-components!
+  "Execute function f against an atom of components."
+  [f components]
+  (swap! components #(zipmap (keys %) (map f (vals %)))))
 
 (defrecord ComponentSystem [config-supplier bootstrap-args components]
   ComponentSystemProtocol
@@ -25,21 +30,17 @@
   (init! [this]
     (log/info "System starting up.")
 
-    (config-supplier/init! config-supplier (fn [] (bounce-components! this)))
+    (config-supplier/init! config-supplier (fn [] (handle-settings-reconnect! this)))
 
-    (components-manager/on-components! (partial components-manager/init-component! this) components)
-
-    (doseq [[k c] @components]
-      (config-supplier/register-watcher config-supplier
-                                        (components-manager/settings-path c)
-                                        (fn [] (bounce-component! this k))))
+    (update-components! (partial components-manager/init-component! this) components)
 
     (log/info "System started."))
 
   (shutdown! [this]
     (log/info "System shutting down.")
 
-    (components-manager/on-components! components-manager/shutdown-component! components)
+    (update-components! components-manager/shutdown-component! components)
+
     (config-supplier/close! config-supplier)
 
     (log/info "System shut down."))
@@ -47,10 +48,10 @@
   (bounce-component! [this k]
     (swap! components assoc k (components-manager/bounce-component! this (@components k))))
 
-  (bounce-components! [this]
-    (log/info "Bouncing relevant components.")
+  (handle-settings-reconnect! [this]
+    (log/info "Bouncing relevant components owing to settings disconnect.")
 
-    (components-manager/on-components! (partial components-manager/bounce-component! this) components)
+    (update-components! (partial components-manager/handle-settings-reconnect! this) components)
 
     (log/info "Finished bouncing relevant components.")))
 

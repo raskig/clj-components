@@ -27,15 +27,7 @@
 
     (log/info "Zookeeper reconnecting complete.")
 
-    (reconnect-fn)
-
-    (log/info "Re-registering watchers.")
-
-    ;; Re-apply watchers
-    (doseq [[path watcher-fn] @(:watchers config-supplier)]
-      (register-watcher config-supplier path watcher-fn))
-
-    (log/info "Re-registering watchers complete.")))
+    (reconnect-fn)))
 
 (defn- atom-watcher
   "We plug this watcher into Clojures std STM.
@@ -48,7 +40,10 @@
 
   (f))
 
-(defrecord AvoutConfigSupplier [client watchers]
+(defn- atom-path [path]
+  (str "/" (clojure.string/join "/" (map name (cons (config/zk-root) path)))))
+
+(defrecord AvoutConfigSupplier [client]
   ConfigSupplier
 
   (init! [this reconnect-fn]
@@ -62,20 +57,22 @@
   (close! [this]
     (zk/close @client))
 
-  (fetch [this path]
-    (avout/zk-atom @client (str "/" (clojure.string/join "/" (map name (cons (config/zk-root) path))))))
+  (fetch [this path watcher-fn]
+    (log/info (format "Fetching %s" path))
 
-  (register-watcher [this path watcher-fn]
-    (let [settings-atom (fetch this path)]
-      ;; Add a watch through Clojures STM
-      (add-watch settings-atom path (partial atom-watcher (.getSessionId @client) (atom 0) watcher-fn))
-      ;; Register watcher with this config supplier
-      (swap! watchers assoc path watcher-fn)
+    (let [settings-atom (avout/zk-atom @client (atom-path path))]
 
-      (log/info "Registered watcher for path" path))))
+      (when watcher-fn
+
+        ;; Add a watch through Clojures STM
+        (add-watch settings-atom path (partial atom-watcher (.getSessionId @client) (atom 0) watcher-fn))
+
+        (log/info "Registered watcher for path" path))
+
+      settings-atom)))
 
 (defn supplier []
-  (AvoutConfigSupplier. (atom nil) (atom {})))
+  (AvoutConfigSupplier. (atom nil)))
 
 ;; Migration
 ;;  Do a simple story, like migrate ES from shared ref to singular atom
@@ -85,18 +82,5 @@
   (avout/zk-ref @(:client config-supplier) (str "/" (name (config/zk-root)))))
 
 (defn migrate-component! [{:keys [config-supplier] :as system} k]
-  (avout/reset!! (fetch config-supplier [:components k])
+  (avout/reset!! (fetch config-supplier [:components k] nil)
                  (-> system fetch-old deref :components k)))
-
-;; 3 watchers on startup
-;;   we have the atom mashed into the component
-;;   we have an atom fetched so we can watch it (which bounces the component)
-;;     whenever a fetch occurs we have a new watcher (to bounce the state within the atom)
-;;   we add a watcher ourselves
-
-;; when you do a swap!! on a random atom the count doesn't increase
-;; when you do a swap!! on a component atom, the count DOES increase... why?
-;;  because the component is bounced, we fetch a new atom
-;;  the old watcher stays hanging around
-;;    so, there's no reason to re-fetch the atom. No point whatsoever.
-;;    Only time it makes sense to refetch is on SESSION_EXPIRY

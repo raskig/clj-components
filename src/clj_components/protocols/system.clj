@@ -4,4 +4,4 @@
   (init! [this])
   (shutdown! [this])
   (bounce-component! [this k])
-  (bounce-components! [this]))
+  (handle-settings-reconnect! [this]))

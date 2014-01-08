@@ -8,8 +8,8 @@
   SystemComponent
   (registry-key [this] :riemann)
 
-  (init [this settings]
-    (let [riemann-host (:riemann-host settings)]
+  (init [this settings _]
+    (let [riemann-host (:riemann-host @settings)]
       (assoc this :client (when (not-empty riemann-host)
                             (r/udp-client :host riemann-host)))))
 

@@ -3,7 +3,7 @@
 (defprotocol SystemComponent
   [registry-key [this]]
 
-  (init [this settings]))
+  (init [this settings bootstrap-args]))
 
 (defprotocol SpecifySettingsPath
   (settings-path [this]))
