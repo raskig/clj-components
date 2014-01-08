@@ -40,12 +40,12 @@
     (log/info "System shutting down.")
 
     (components-manager/on-components! components-manager/shutdown-component! components)
-    (config-supplier/close! (config-supplier))
+    (config-supplier/close! config-supplier)
 
     (log/info "System shut down."))
 
   (bounce-component! [this k]
-    (swap! components update-in [k] (components-manager/bounce-component! (@components k))))
+    (swap! components assoc k (components-manager/bounce-component! this (@components k))))
 
   (bounce-components! [this]
     (log/info "Bouncing relevant components.")

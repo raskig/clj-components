@@ -37,11 +37,14 @@
 
     (log/info "Re-registering watchers complete.")))
 
-(defn- atom-watcher [system client path watch-count f e]
+(defn- atom-watcher
+  "We plug this watcher into Clojures std STM.
+  The STM model expects to invoke a watcher-fn with 4 args:
+  The key, the reference, its old-state, its new-state."
+  [session-id watch-count f k _ _ _]
   (swap! watch-count inc)
 
-  (log/info (format "Configuration change detected for atom %s in session %s (%s times)."
-                    path (.getSessionId client) watch-count))
+  (log/info (format "Configuration change detected for atom %s in session %s (%s times)." k session-id @watch-count))
 
   (f))
 
@@ -54,10 +57,10 @@
     (reset! client
             (avout/connect (config/zk-ips)
                            :timeout-msec 10000
-                           :watcher (partial connection-watcher reconnect-fn))))
+                           :watcher (partial connection-watcher this reconnect-fn))))
 
   (close! [this]
-    (zk/close))
+    (zk/close @client))
 
   (fetch [this path]
     (avout/zk-atom @client (str "/" (clojure.string/join "/" (map name (cons (config/zk-root) path))))))
@@ -65,9 +68,9 @@
   (register-watcher [this path watcher-fn]
     (let [settings-atom (fetch this path)]
       ;; Add a watch through Clojures STM
-      (add-watch settings-atom path (partial atom-watcher client path watcher-fn (atom 0)))
+      (add-watch settings-atom path (partial atom-watcher (.getSessionId @client) (atom 0) watcher-fn))
       ;; Register watcher with this config supplier
-      (swap! watchers path watcher-fn)
+      (swap! watchers assoc path watcher-fn)
 
       (log/info "Registered watcher for path" path))))
 
@@ -78,9 +81,9 @@
 ;;  Do a simple story, like migrate ES from shared ref to singular atom
 ;;  Be good to leave current migration stuff in place, like it's backwards compatible (somehow)
 
-(defn migrate-component! [system k]
-  (let [config-supplier (:config-supplier system)
-        client (-> config-supplier :client deref)
-        original-settings (fetch config-supplier [])
-        new-settings (fetch config-supplier k)]
-    (avout/reset!! new-settings @original-settings)))
+(defn fetch-old [{:keys [config-supplier]}]
+  (avout/zk-ref @(:client config-supplier) (str "/" (name (config/zk-root)))))
+
+(defn migrate-component! [{:keys [config-supplier] :as system} k]
+  (avout/reset!! (fetch config-supplier [:components k])
+                 (-> clj-components.bootstrap/s fetch-old deref :components k)))
