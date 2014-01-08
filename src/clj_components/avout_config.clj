@@ -6,16 +6,26 @@
             [clj-components.protocols.system :as system]
             [zookeeper :as zk]))
 
-(defn- connection-watcher [system e]
+;;-----------------------------------------------------------
+;; Avout config supplier
+;;
+;; Supplies config to the system.
+;;
+;; Also deals with the situation where a SESSION_EXPIRED event
+;; is raised from ZK. In this case we want to bounce the client,
+;; bounce components, and re-watch atoms for changes.
+;;-----------------------------------------------------------
+
+(defn- connection-watcher [config-supplier reconnect-fn e]
   (log/warn "Zookeeper connection event:" e)
   (when (= :Expired (:keeper-state e))
 
     (log/warn "Zookeeper session expired, reconnecting and bouncing relevant components.")
 
-    (close! (:config-supplier system))
-    (init! (:config-supplier system) system)
+    (close! config-supplier)
+    (init! config-supplier reconnect-fn)
 
-    (system/bounce-components! system)
+    (reconnect-fn)
 
     (log/info "Finished bouncing relevant components.")))
 
@@ -30,13 +40,13 @@
 (defrecord AvoutConfigSupplier [client]
   ConfigSupplier
 
-  (init! [this system]
+  (init! [this reconnect-fn]
     (log/info (format "Connecting to ZK %s with root %s" (config/zk-ips) (config/zk-root)))
 
     (reset! client
             (avout/connect (config/zk-ips)
                            :timeout-msec 10000
-                           :watcher (partial connection-watcher system))))
+                           :watcher (partial connection-watcher reconnect-fn))))
 
   (close! [this]
     (zk/close))

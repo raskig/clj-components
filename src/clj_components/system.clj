@@ -25,7 +25,8 @@
   (init! [this]
     (log/info "System starting up.")
 
-    (config-supplier/init! config-supplier this)
+    (config-supplier/init! config-supplier (fn [] (bounce-components! this)))
+
     (components-manager/on-components! (partial components-manager/init-component! this) components)
 
     (log/info "System started."))
