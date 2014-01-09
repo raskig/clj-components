@@ -102,5 +102,10 @@
 ;;--------------------
 
 (defn update! [client path form]
-  (let [v (:version (zk/exists client (atom-path path)))]
-    (zk/set-data client (atom-path path) (serialize-form form) v)))
+  (let [path (atom-path path)]
+    (when-not (zk/exists client path)
+      (log/info (format "Creating %s for first time" path))
+      (zk/create-all client path :persistent? true))
+
+    (let [v (:version (zk/exists client path))]
+      (zk/set-data client path (serialize-form form) v))))

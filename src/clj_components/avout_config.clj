@@ -74,13 +74,5 @@
 (defn supplier []
   (AvoutConfigSupplier. (atom nil)))
 
-;; Migration
-;;  Do a simple story, like migrate ES from shared ref to singular atom
-;;  Be good to leave current migration stuff in place, like it's backwards compatible (somehow)
-
 (defn fetch-old [config-supplier]
   (avout/zk-ref @(:client config-supplier) (str "/" (name (config/zk-root)))))
-
-(defn migrate-component! [{:keys [config-supplier] :as system} k]
-  (avout/reset!! (fetch config-supplier [:components k] nil)
-                 (-> system fetch-old deref :components k)))
