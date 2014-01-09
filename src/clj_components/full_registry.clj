@@ -9,7 +9,8 @@
 
 (def constructors
   [clj-components.components.elasticsearch/->ElasticSearchComponent
-   clj-components.components.redis/->RedisComponent
-   clj-components.components.riemann/->RiemannComponent
-   clj-components.components.web-server/->WebServerComponent
-   clj-components.components.nrepl/->NReplComponent])
+   ;; clj-components.components.redis/->RedisComponent
+   ;; clj-components.components.riemann/->RiemannComponent
+   ;; clj-components.components.web-server/->WebServerComponent
+   ;; clj-components.components.nrepl/->NReplComponent
+])
