@@ -27,10 +27,8 @@
   ([form]
      (when form (read-string (zk-data/to-string form)))))
 
-(defn connect
-  "Returns a ZooKeeper client, and initializes the STM if it doesn't already exist."
-  ([& args]
-     ))
+(defn- atom-path [path]
+  (clojure.string/join "/" (map name (concat [*cfg-node* (config/zk-root)] path))))
 
 (defn- connection-watcher [config-supplier reconnect-fn e]
   (log/warn "Zookeeper connection event:" e)
@@ -45,26 +43,23 @@
 
     (reconnect-fn)))
 
-(defn- atom-path [path]
-  (clojure.string/join "/" (map name (concat [*cfg-node* (config/zk-root)] path))))
-
-(defn- add-persistent-watch!
+(defn- add-persistent-watcher!
   "ZK Watches are fired one time only (except for ZK connect/disconnect events)."
   [client path callback]
-  (log/info "Registering ZK watcher for " path)
+  (log/info "Registering ZK watcher for path:" path)
 
   (let [watch-count (atom 0)
         watcher (fn watcher-fn [event]
                   (when (= :NodeDataChanged (:event-type event))
                     (swap! watch-count inc)
-                    (log/info (format "Configuration change detected for atom %s in session %s (%s times)."
+                    (log/info (format "Watcher fired for path %s in session %s (%s times)."
                                       path (.getSessionId client) @watch-count))
                     (callback)
 
                     ;; Re-add the watcher
                     (zk/exists client path :watcher watcher-fn)))]
 
-    (zk/exists client (atom-path path) :watcher watcher)))
+    (zk/exists client path :watcher watcher)))
 
 (defrecord ZkConfigSupplier [client]
   ConfigSupplier
@@ -82,15 +77,31 @@
   (fetch [this path watcher-fn]
     (log/info (format "Fetching %s located at %s" path (atom-path path)))
 
-    (when-not (zk/exists @client (atom-path path))
-      (log/info (format "Creating %s for first time" (atom-path path)))
-      (zk/create-all @client (atom-path path) :persistent? true))
+    (let [path (atom-path path)]
 
-    (let [settings-atom (atom (deserialize-form (:data (zk/data @client (atom-path path)))))]
-      (when watcher-fn
-        (add-persistent-watch! @client path watcher-fn))
+      (when-not (zk/exists @client path)
+        (log/info (format "Creating %s for first time" path))
+        (zk/create-all @client path :persistent? true))
 
-      settings-atom)))
+      (let [settings-atom (atom (deserialize-form (:data (zk/data @client path))))]
+
+        ;; Add a watcher to keep the atom updated and trigger custom watcher
+        (add-persistent-watcher! @client path
+                                 (fn []
+                                   (reset! settings-atom (deserialize-form (:data (zk/data @client path))))
+                                   (when watcher-fn (watcher-fn))))
+
+        settings-atom))))
 
 (defn supplier []
   (ZkConfigSupplier. (atom nil)))
+
+
+;;--------------------
+;; Helpful Stuff:
+;;--------------------
+
+(defn update! [s path form]
+  (let [client @(:client (:config-supplier s))
+        v (:version (zk/exists client (atom-path path)))]
+    (zk/set-data client (atom-path path) (serialize-form form) v)))
