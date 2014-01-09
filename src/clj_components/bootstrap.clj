@@ -1,6 +1,6 @@
 (ns clj-components.bootstrap
   (:require [clj-components.system]
-            [clj-components.avout-config]
+            [clj-components.zk-config-supplier]
             [clj-components.protocols.system :as system]
             [clj-components.protocols.config-supplier :as config-supplier]
             [clojure.tools.logging :as log]))
@@ -16,7 +16,7 @@
 
   (let [system (clj-components.system/make-system
                 component-constructors
-                (clj-components.avout-config/supplier)
+                (clj-components.zk-config-supplier/supplier)
                 bootstrap-args)]
 
     (system/init! system)
