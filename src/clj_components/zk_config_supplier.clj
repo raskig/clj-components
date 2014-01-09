@@ -31,7 +31,7 @@
   (clojure.string/join "/" (map name (concat [*cfg-node* (config/zk-root)] path))))
 
 (defn- connection-watcher [config-supplier reconnect-fn e]
-  (log/warn "Zookeeper connection event:" e)
+  (log/debug "Zookeeper connection event:" e)
   (when (= :Expired (:keeper-state e))
 
     (log/warn "Zookeeper session expired, reconnecting.")
