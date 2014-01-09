@@ -101,7 +101,6 @@
 ;; Helpful Stuff:
 ;;--------------------
 
-(defn update! [s path form]
-  (let [client @(:client (:config-supplier s))
-        v (:version (zk/exists client (atom-path path)))]
+(defn update! [client path form]
+  (let [v (:version (zk/exists client (atom-path path)))]
     (zk/set-data client (atom-path path) (serialize-form form) v)))
