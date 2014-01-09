@@ -7,6 +7,9 @@
             [zookeeper :as zk]))
 
 ;;-----------------------------------------------------------
+;;
+;; AVOUT IS NOT SAFE - SEE https://github.com/liebke/avout/issues/10
+;;
 ;; Avout config supplier
 ;;
 ;; Supplies config to the system.
