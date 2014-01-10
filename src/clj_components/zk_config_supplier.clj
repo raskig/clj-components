@@ -27,8 +27,11 @@
   ([form]
      (when form (read-string (zk-data/to-string form)))))
 
-(defn- atom-path [path]
-  (clojure.string/join "/" (map name (concat [*cfg-node* (config/zk-root)] path))))
+(defn atom-path
+  ([path]
+     (atom-path (config/zk-root) path))
+  ([root path]
+     (clojure.string/join "/" (map name (concat [*cfg-node* root] path)))))
 
 (defn- connection-watcher [config-supplier reconnect-fn e]
   (log/debug "Zookeeper connection event:" e)
@@ -101,11 +104,14 @@
 ;; Helpful Stuff:
 ;;--------------------
 
-(defn update! [client path form]
-  (let [path (atom-path path)]
-    (when-not (zk/exists client path)
-      (log/info (format "Creating %s for first time" path))
-      (zk/create-all client path :persistent? true))
+(defn update!
+  ([client path form]
+     (update! client (config/zk-root) path form))
+  ([client zk-root path form]
+     (let [path (atom-path zk-root path)]
+       (when-not (zk/exists client path)
+         (log/info (format "Creating %s for first time" path))
+         (zk/create-all client path :persistent? true))
 
-    (let [v (:version (zk/exists client path))]
-      (zk/set-data client path (serialize-form form) v))))
+       (let [v (:version (zk/exists client path))]
+         (zk/set-data client path (serialize-form form) v)))))
