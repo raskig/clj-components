@@ -1,6 +1,6 @@
 # clj_components
 
-Component lifecycle management lib based of Avout, with some regulary used static components
+Component lifecycle management lib using data stored in ZK.
 
 ## License
 
