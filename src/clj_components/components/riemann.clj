@@ -11,7 +11,7 @@
   (init [this settings _]
     (let [riemann-host (:riemann-host @settings)]
       (assoc this :client (when (not-empty riemann-host)
-                            (r/udp-client :host riemann-host)))))
+                            (r/tcp-client :host riemann-host)))))
 
   ShutdownComponent
   (shutdown [this]
