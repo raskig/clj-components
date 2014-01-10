@@ -2,6 +2,7 @@
   (:require [clj-components.components.redis]
             [clj-components.components.riemann]
             [clj-components.components.web-server]
+            [clj-components.components.memcached]
             [clj-components.components.nrepl]
             [clj-components.components.elasticsearch]))
 

@@ -9,9 +9,9 @@
   SystemComponent
   (registry-key [this] :memcached)
 
-  (init [this settings]
-    (if (not-empty (:url settings))
-      (let [conn (c/bin-connection (:url settings))
+  (init [this settings _]
+    (if (not-empty (:url @settings))
+      (let [conn (c/bin-connection (:url @settings))
             is-connected? (atom false)]
         (assert (.addObserver conn
                               (proxy [ConnectionObserver] []
