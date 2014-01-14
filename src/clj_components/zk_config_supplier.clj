@@ -78,7 +78,7 @@
     (zk/close @client))
 
   (fetch [this path watcher-fn]
-    (log/info (format "Fetching %s located at %s" path (atom-path path)))
+    (log/debug (format "Fetching %s located at %s" path (atom-path path)))
 
     (let [path (atom-path path)]
 
