@@ -61,14 +61,15 @@
   SystemComponent
   (registry-key [this] :quartz)
 
-  (init [this {:keys [quartz-jobs]}]
+  (init [this settings _]
     (log/info "Starting up Quartz... ")
-    (qs/initialize)
-    (qs/start)
-    (qs/clear!)
-    (when quartz-jobs
-      (doseq [j quartz-jobs]
-        (sched j)))
+    (let [quartz-jobs (:quartz-jobs @settings)]
+      (qs/initialize)
+      (qs/start)
+      (qs/clear!)
+      (when quartz-jobs
+        (doseq [j quartz-jobs]
+          (sched j))))
     (log/info "Done.")
     this)
 
