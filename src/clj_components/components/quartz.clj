@@ -61,9 +61,9 @@
   SystemComponent
   (registry-key [this] :quartz)
 
-  (init [this settings _]
+  (init [this _ bootstrap-args]
     (log/info "Starting up Quartz... ")
-    (let [quartz-jobs (:quartz-jobs @settings)]
+    (let [quartz-jobs (:quartz-jobs bootstrap-args)]
       (qs/initialize)
       (qs/start)
       (qs/clear!)
