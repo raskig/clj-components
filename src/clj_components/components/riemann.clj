@@ -39,10 +39,11 @@
 (defn send-event
   "Sends an event to Riemann"
   [system event]
-  (try
-    (executor/run-bounded (fn [] (r/send-event (client system) event)))
-    (catch Exception e
-      (log/error e (format "Can't send event %s to riemann" (keys event))))))
+  (when (client system)
+    (try
+      (executor/run-bounded (fn [] (r/send-event (client system) event)))
+      (catch Exception e
+        (log/error e (format "Can't send event %s to riemann" (keys event)))))))
 
 ;; Test your riemann:
 (comment
