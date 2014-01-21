@@ -1,7 +1,8 @@
 (ns clj-components.components.riemann
   (:use [clj-components.protocols.component])
   (:require [riemann.client :as r]
-            [clojure.tools.logging :as log]))
+            [clojure.tools.logging :as log]
+            [clj-components.utils.bounded-executor :as executor]))
 
 (defrecord RiemannComponent []
   BounceOnConfigChange
@@ -11,7 +12,7 @@
   (init [this settings _]
     (let [riemann-host (:riemann-host @settings)]
       (assoc this :client (when (not-empty riemann-host)
-                            (r/udp-client :host riemann-host)))))
+                            (r/tcp-client :host riemann-host)))))
 
   ShutdownComponent
   (shutdown [this]
@@ -38,11 +39,10 @@
 (defn send-event
   "Sends an event to Riemann"
   [system event]
-  (when (client system)
-    (try
-      (r/send-event (client system) event false)
-      (catch Exception e
-        (log/error e (format "Can't send events to riemann"))))))
+  (try
+    (executor/run-bounded (fn [] (r/send-event (client system) event)))
+    (catch Exception e
+      (log/error e (format "Can't send event %s to riemann" (keys event))))))
 
 ;; Test your riemann:
 (comment
