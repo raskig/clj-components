@@ -15,4 +15,4 @@
 (defn run-bounded [f]
   "Exectutes f in a bounded executor"
   (let [executor bounded-executor]
-    (.execute executor (Thread. (f)))))
+    (.execute executor (Thread. f))))
