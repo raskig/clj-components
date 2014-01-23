@@ -18,6 +18,7 @@
       (.setResponseHeaderSize connector
                               header-size))))
 
+;; See https://groups.google.com/d/topic/ring-clojure/07VoXVHrQ_M/discussion
 (defn ^Server run-jetty-hacked [options & handlers]
   (let [handler-collection (HandlerCollection.)
         ^Server s (#'jetty/create-server (dissoc options :configurator))
