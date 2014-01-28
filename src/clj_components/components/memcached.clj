@@ -4,6 +4,11 @@
             [clojure.tools.logging :as log])
   (:import [net.spy.memcached ConnectionObserver]))
 
+(defn- custom-cf []
+  (let [cf (c/bin-connection-factory :failure-mode :retry)]
+    (log/info "Connection Factory: " cf)
+    cf))
+
 (defrecord MemcachedComponent []
   BounceOnConfigChange
   SystemComponent
@@ -11,7 +16,7 @@
 
   (init [this settings _]
     (if (not-empty (:url @settings))
-      (let [conn (c/bin-connection (:url @settings))
+      (let [conn (c/bin-connection (:url @settings) (custom-cf))
             is-connected? (atom false)]
         (assert (.addObserver conn
                               (proxy [ConnectionObserver] []
