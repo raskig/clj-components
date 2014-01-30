@@ -1,11 +1,13 @@
 (ns clj-components.utils.bounded-executor
   "See: https://github.com/aphyr/riemann-clojure-client/issues/9#issuecomment-32624706 to understand what's going on here"
-  (:import (java.util.concurrent ThreadPoolExecutor TimeUnit LinkedBlockingQueue RejectedExecutionHandler)))
+  (:import (java.util.concurrent ThreadPoolExecutor TimeUnit LinkedBlockingQueue RejectedExecutionHandler))
+  (:require [clojure.tools.logging :as log]))
 
 (def reject-handler
   "Handles a rejection on the bounded executor. i.e. when the LBQ is full."
   (proxy [RejectedExecutionHandler] []
-    (rejectedExecution [runnable executor])))
+    (rejectedExecution [runnable executor]
+      (log/warn "Could not execute, queue must be full."))))
 
 (def bounded-executor
   "Bounded Execution, current settings are calcuated thinking on the current volumes of Riemann In Production"
@@ -15,4 +17,4 @@
 (defn run-bounded [f]
   "Exectutes f in a bounded executor"
   (let [executor bounded-executor]
-    (.execute executor (Thread. f))))
+    (.execute executor f)))
