@@ -33,8 +33,8 @@
   ([path]
    (atom-path (config/zk-root) path))
   ([root path]
-   (let [prefix (if *use-typed-config?* [*cfg-node* :typed root] [*cfg-node* root])]
-     (clojure.string/join "/" (map name (concat  path))))))
+   (let [prefix (if *use-typed-config?* [*cfg-node* root :typed] [*cfg-node* root])]
+     (clojure.string/join "/" (map name (concat prefix path))))))
 
 (defn- connection-watcher [config-supplier reconnect-fn e]
   (log/debug "Zookeeper connection event:" e)
