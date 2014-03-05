@@ -78,7 +78,7 @@
   (AvoutConfigSupplier. (atom nil)))
 
 (defn fetch-old
-  ([config-supplier]
-     (fetch-old config-supplier(config/zk-root)))
-  ([config-supplier root]
-     (avout/zk-ref @(:client config-supplier) (str "/" (name root)))))
+  ([client]
+     (fetch-old client (config/zk-root)))
+  ([client root]
+     (avout/zk-ref client (str "/" (name root)))))
