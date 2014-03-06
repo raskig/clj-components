@@ -17,8 +17,6 @@
 
 (def ^:dynamic *cfg-node* "/stoic")
 
-(def ^:dynamic *use-typed-config?* false)
-
 (defn serialize-form
   "Serializes a Clojure form to a byte-array."
   ([form]
@@ -33,8 +31,7 @@
   ([path]
    (atom-path (config/zk-root) path))
   ([root path]
-   (let [prefix (if *use-typed-config?* [*cfg-node* root :typed] [*cfg-node* root])]
-     (clojure.string/join "/" (map name (concat prefix path))))))
+   (clojure.string/join "/" (map name (concat [*cfg-node* root :typed] path)))))
 
 (defn- connection-watcher [config-supplier reconnect-fn e]
   (log/debug "Zookeeper connection event:" e)
