@@ -4,7 +4,7 @@
             [clojure.tools.logging :as log]))
 
 (defmacro wcar-db [system db & body]
-  `(let [spec-server# (-> ~system :components deref :redis :spec-server (assoc :db db))
+  `(let [spec-server# (-> ~system :components deref :redis :spec-server (assoc :db ~db))
          pool# (-> ~system :components deref :redis :pool)]
      (car/with-conn pool# spec-server# ~@body)))
 

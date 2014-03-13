@@ -57,8 +57,8 @@
   :profiles {:dev {:source-paths ["dev"]
                    :plugins [[lein-environ "0.4.0"]]}}
   :jvm-opts ["-Dlog.dir=logs"]
-  :repositories {"snapshots" {:url "10.251.76.73:8081/nexus/content/repositories/snapshots"
-                              :username "admin" :password "admin123"}
-                 "releases" {:url "http://10.251.76.73:8081/nexus/content/repositories/releases"
-                             :username "admin" :password "admin123" }
-                 "thirdparty" {:url "http://10.251.76.73:8081/nexus/content/repositories/thirdparty"}})
+  :repositories {"snapshots" {:url "http://nexusint.andintweb.dmgt.net:8081/nexus/content/repositories/snapshots"
+                              :username "admin" :password "admin123" :sign-releases false}
+                 "releases" {:url "http://nexusint.andintweb.dmgt.net:8081/nexus/content/repositories/releases"
+                             :username "admin" :password "admin123" :sign-releases false}
+                 "thirdparty" {:url "http://nexusint.andintweb.dmgt.net:8081/nexus/content/repositories/thirdparty"}})
