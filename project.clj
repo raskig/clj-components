@@ -1,4 +1,4 @@
-(defproject clj-components "0.2.0-alpha-14"
+(defproject clj-components "0.2.0-es-101"
   :description "Component lifecycle management lib based off Avout/Zookeeper"
   :url "https://github.com/MailOnline/clj-components"
   :license {:name "Eclipse Public License"
@@ -31,7 +31,7 @@
                  [net.logstash.logback/logstash-logback-encoder "1.2" :exclusions [com.fasterxml.jackson.core/jackson-core]]
 
                  ;; ElasticSearch Component
-                 [clojurewerkz/elastisch "1.3.0" :exclusions [com.fasterxml.jackson.core/jackson-core]]
+                 [clojurewerkz/elastisch "2.0.0-beta1" :exclusions [com.fasterxml.jackson.core/jackson-core]]
 
                  ;; Riemann Component
                  [riemann-clojure-client "0.2.6"]
@@ -57,8 +57,8 @@
   :profiles {:dev {:source-paths ["dev"]
                    :plugins [[lein-environ "0.4.0"]]}}
   :jvm-opts ["-Dlog.dir=logs"]
-  :repositories {"snapshots" {:url "10.251.76.73:8081/nexus/content/repositories/snapshots"
+  :repositories {"snapshots" {:url "http://nexusint.andintweb.dmgt.net:8081/nexus/content/repositories/snapshots"
                               :username "admin" :password "admin123"}
-                 "releases" {:url "http://10.251.76.73:8081/nexus/content/repositories/releases"
+                 "releases" {:url "http://nexusint.andintweb.dmgt.net:8081/nexus/content/repositories/releases"
                              :username "admin" :password "admin123" }
-                 "thirdparty" {:url "http://10.251.76.73:8081/nexus/content/repositories/thirdparty"}})
+                 "thirdparty" {:url "http://nexusint.andintweb.dmgt.net:8081/nexus/content/repositories/thirdparty"}})
