@@ -53,7 +53,10 @@
                  [com.oracle/ojdbc14 "10.2.0.4.0"]
 
                  ;; Memcached Component
-                 [net.spy/spymemcached "2.10.5"]]
+                 [net.spy/spymemcached "2.10.5"]
+
+                 ;; Stencil Component
+                 [stencil "0.3.2" :exclusions [slingshot]]]
   :profiles {:dev {:source-paths ["dev"]
                    :plugins [[lein-environ "0.4.0"]]}}
   :jvm-opts ["-Dlog.dir=logs"]
